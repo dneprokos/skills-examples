@@ -1,0 +1,61 @@
+{
+  "testTypes": {
+    "Happy Path": {
+      "description": "Normal successful operations with valid inputs",
+      "testLevel": "Integration",
+      "category": "positive"
+    },
+    "Boundary": {
+      "description": "Edge cases and limit testing",
+      "testLevel": "Unit",
+      "category": "boundary"
+    },
+    "Negative": {
+      "description": "Error conditions and invalid inputs",
+      "testLevel": "Unit",
+      "category": "negative"
+    },
+    "Security": {
+      "description": "Authentication and authorization tests",
+      "testLevel": "Integration",
+      "category": "security"
+    },
+    "Performance": {
+      "description": "Load and stress testing scenarios",
+      "testLevel": "E2E",
+      "category": "performance"
+    },
+    "Integration": {
+      "description": "Cross-service and dependency tests",
+      "testLevel": "Integration",
+      "category": "integration"
+    },
+    "Validation": {
+      "description": "Input format and constraint validation",
+      "testLevel": "Unit",
+      "category": "validation"
+    }
+  },
+  "testLevels": {
+    "Unit": "Fast, isolated tests - 70% of test suite",
+    "Integration": "Component interaction tests - 20% of test suite",
+    "E2E": "End-to-end critical path tests - 10% of test suite"
+  },
+  "testingPyramidLevels": {
+    "unit": {
+      "description": "Fast, isolated tests for individual components",
+      "percentage": 70,
+      "focus": ["validation", "business logic", "edge cases"]
+    },
+    "integration": {
+      "description": "Tests for component interactions",
+      "percentage": 20,
+      "focus": ["API contracts", "data flow", "service communication"]
+    },
+    "e2e": {
+      "description": "End-to-end user journey tests",
+      "percentage": 10,
+      "focus": ["critical user paths", "cross-system workflows"]
+    }
+  }
+}

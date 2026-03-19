@@ -1,0 +1,69 @@
+{
+  "inputValidation": {
+    "stringFields": {
+      "maxLength": 255,
+      "minLength": 1,
+      "patterns": ["email", "url", "phone", "uuid"]
+    },
+    "numericFields": {
+      "integerRange": [-2147483648, 2147483647],
+      "positiveInteger": [1, 2147483647],
+      "floatRange": [-3.4e38, 3.4e38]
+    },
+    "dateFields": {
+      "formats": ["ISO8601", "RFC3339"],
+      "futureOnly": false,
+      "pastOnly": false
+    },
+    "arrayFields": {
+      "maxItems": 100,
+      "minItems": 0,
+      "uniqueItems": true
+    }
+  },
+  "authenticationTypes": [
+    "Bearer token",
+    "API key",
+    "Basic auth",
+    "OAuth 2.0",
+    "JWT",
+    "None"
+  ],
+  "commonErrorCodes": {
+    "400": "Bad Request - Invalid input data",
+    "401": "Unauthorized - Authentication required",
+    "403": "Forbidden - Insufficient permissions",
+    "404": "Not Found - Resource does not exist",
+    "409": "Conflict - Resource already exists or conflict",
+    "422": "Unprocessable Entity - Validation failed",
+    "429": "Too Many Requests - Rate limiting",
+    "500": "Internal Server Error - Server error"
+  },
+  "httpMethods": {
+    "GET": {
+      "idempotent": true,
+      "safe": true,
+      "expectedCodes": [200, 404, 401, 403]
+    },
+    "POST": {
+      "idempotent": false,
+      "safe": false,
+      "expectedCodes": [201, 400, 401, 403, 409, 422]
+    },
+    "PUT": {
+      "idempotent": true,
+      "safe": false,
+      "expectedCodes": [200, 204, 400, 401, 403, 404, 422]
+    },
+    "PATCH": {
+      "idempotent": false,
+      "safe": false,
+      "expectedCodes": [200, 204, 400, 401, 403, 404, 422]
+    },
+    "DELETE": {
+      "idempotent": true,
+      "safe": false,
+      "expectedCodes": [200, 204, 404, 401, 403]
+    }
+  }
+}
