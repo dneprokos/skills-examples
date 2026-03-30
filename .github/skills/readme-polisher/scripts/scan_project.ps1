@@ -146,9 +146,13 @@ $docs = Get-ChildItem -LiteralPath $root -File |
 Where-Object { $_.Name -match '^(README|CONTRIBUTING|CHANGELOG|LICENSE)' } |
 Select-Object -ExpandProperty Name
 
-$topLevelItems = Get-ChildItem -LiteralPath $root -Force |
-Where-Object { $_.Name -notin @('.git', 'node_modules', '.venv', '__pycache__') } |
-Sort-Object -Property @{ Expression = { $_.PSIsContainer }; Descending = $true }, @{ Expression = { $_.Name }; Descending = $false } |
+$visibleItems = Get-ChildItem -LiteralPath $root -Force |
+Where-Object { $_.Name -notin @('.git', 'node_modules', '.venv', '__pycache__') }
+
+$topLevelItems = @(
+    $visibleItems | Where-Object { $_.PSIsContainer } | Sort-Object -Property Name
+    $visibleItems | Where-Object { -not $_.PSIsContainer } | Sort-Object -Property Name
+) |
 Select-Object -First 20 |
 ForEach-Object {
     if ($_.PSIsContainer) { "{0}/" -f $_.Name } else { $_.Name }

@@ -36,7 +36,7 @@ function Invoke-Git {
     return ($output | Out-String).TrimEnd()
 }
 
-function Test-StagedChanges {
+function Test-GitStagedChanges {
     & git diff --cached --quiet --exit-code
     return (-not $?)
 }
@@ -74,7 +74,7 @@ try {
     $statusOutput = Invoke-Git -Arguments @('status', '--short')
     $stagedFiles = Invoke-Git -Arguments @('diff', '--cached', '--name-only')
     $stagedStat = Invoke-Git -Arguments @('diff', '--cached', '--stat')
-    $hasStagedChanges = Test-StagedChanges
+    $hasStagedChanges = Test-GitStagedChanges
 
     if ($DryRun -and $StageAll -and -not $hasStagedChanges -and -not [string]::IsNullOrWhiteSpace($statusOutput)) {
         $hasStagedChanges = $true
