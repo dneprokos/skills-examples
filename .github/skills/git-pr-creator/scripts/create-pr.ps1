@@ -52,6 +52,88 @@ function Invoke-GitHub {
     return ($output | Out-String).TrimEnd()
 }
 
+function Install-GitHubCli {
+    $installErrors = @()
+
+    $winget = Get-Command winget -ErrorAction SilentlyContinue
+    if ($winget) {
+        Write-Output 'GitHub CLI (`gh`) was not found. Attempting installation via winget...'
+        & $winget.Source install --id GitHub.cli --exact --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
+        if ($LASTEXITCODE -eq 0 -and (Get-Command gh -ErrorAction SilentlyContinue)) {
+            return $true
+        }
+
+        $installErrors += 'winget install failed'
+    }
+
+    $choco = Get-Command choco -ErrorAction SilentlyContinue
+    if ($choco) {
+        Write-Output 'Attempting GitHub CLI installation via choco...'
+        & $choco.Source install gh -y 2>&1 | Out-Null
+        if ($LASTEXITCODE -eq 0 -and (Get-Command gh -ErrorAction SilentlyContinue)) {
+            return $true
+        }
+
+        $installErrors += 'choco install failed'
+    }
+
+    $scoop = Get-Command scoop -ErrorAction SilentlyContinue
+    if ($scoop) {
+        Write-Output 'Attempting GitHub CLI installation via scoop...'
+        & $scoop.Source install gh 2>&1 | Out-Null
+        if ($LASTEXITCODE -eq 0 -and (Get-Command gh -ErrorAction SilentlyContinue)) {
+            return $true
+        }
+
+        $installErrors += 'scoop install failed'
+    }
+
+    if ($installErrors.Count -gt 0) {
+        Write-Output ("Automatic gh installation attempts failed: {0}." -f ($installErrors -join '; '))
+    }
+
+    return $false
+}
+
+function Test-GitHubCliAuthenticated {
+    if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
+        return $false
+    }
+
+    & gh auth status 1>$null 2>$null
+    return ($LASTEXITCODE -eq 0)
+}
+
+function Ensure-GitHubCliReady {
+    param(
+        [switch]$RequireAuth
+    )
+
+    $ghAvailable = [bool](Get-Command gh -ErrorAction SilentlyContinue)
+    if (-not $ghAvailable) {
+        $installed = Install-GitHubCli
+        if (-not $installed) {
+            Exit-WithMessage -Message 'GitHub CLI (`gh`) is required and could not be installed automatically. Install it manually, then rerun this skill.'
+        }
+    }
+
+    if (-not $RequireAuth) {
+        return
+    }
+
+    if (-not (Test-GitHubCliAuthenticated)) {
+        Write-Output 'GitHub CLI is not authenticated. Launching `gh auth login --web`...'
+        & gh auth login --web --git-protocol https
+        if ($LASTEXITCODE -ne 0) {
+            Exit-WithMessage -Message 'GitHub CLI authentication failed. Complete `gh auth login` and rerun this skill.'
+        }
+
+        if (-not (Test-GitHubCliAuthenticated)) {
+            Exit-WithMessage -Message 'GitHub CLI is still not authenticated after login. Complete `gh auth login` and rerun this skill.'
+        }
+    }
+}
+
 function Get-BranchTicketInfo {
     param(
         [Parameter(Mandatory)]
@@ -232,8 +314,6 @@ if (-not $repoLookupSucceeded -or [string]::IsNullOrWhiteSpace($repoRoot)) {
 }
 
 $repoRoot = $repoRoot.Trim()
-$ghAvailable = [bool](Get-Command gh -ErrorAction SilentlyContinue)
-
 Push-Location $repoRoot
 try {
     $currentBranch = (Invoke-Git -Arguments @('branch', '--show-current')).Trim()
@@ -248,12 +328,14 @@ try {
     $prTitle = Get-ProposedPrTitle -CurrentBranch $currentBranch -BaseBranch $BaseBranch
     $ticketInfo = Get-BranchTicketInfo -BranchName $currentBranch
     $prefix = [string]$ticketInfo.Prefix
+    $ghAvailable = [bool](Get-Command gh -ErrorAction SilentlyContinue)
 
     $duplicatePullRequests = @()
     $duplicateCheckWarning = ''
     if (-not [string]::IsNullOrWhiteSpace($prefix)) {
         if (-not $ghAvailable -and -not $DryRun) {
-            Exit-WithMessage -Message 'GitHub CLI (`gh`) is required to check for existing pull requests and create a new one.'
+            Ensure-GitHubCliReady -RequireAuth
+            $ghAvailable = $true
         }
 
         if ($ghAvailable) {
@@ -292,6 +374,7 @@ try {
     $prBody = $bodyLines -join "`n"
 
     if ($DryRun) {
+        $ghAvailable = [bool](Get-Command gh -ErrorAction SilentlyContinue)
         Write-Output "Current branch: $currentBranch"
         Write-Output "Base branch: $BaseBranch"
         Write-Output "Proposed PR title: $prTitle"
@@ -320,9 +403,7 @@ try {
         return
     }
 
-    if (-not $ghAvailable) {
-        Exit-WithMessage -Message 'GitHub CLI (`gh`) is required to create a pull request with this skill.'
-    }
+    Ensure-GitHubCliReady -RequireAuth
 
     if (-not $remoteBranchExists) {
         Invoke-Git -Arguments @('push', '--set-upstream', 'origin', $currentBranch) | Out-Null
