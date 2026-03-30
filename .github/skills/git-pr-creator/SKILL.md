@@ -78,19 +78,25 @@ If the answer is `No`, stop immediately.
 
 Before creating the PR, ensure `gh` is available and authenticated.
 
-If `gh` is missing, auto-install it using the first available package manager:
+If `gh` is missing, ask for user approval before auto-installing it with the first available package manager:
 
 - `winget`
 - `choco`
 - `scoop`
 
-If `gh` is not authenticated, run:
+If `gh` is not authenticated, ask for user approval before running:
 
 ```powershell
 gh auth login --web --git-protocol https
 ```
 
-If installation or authentication fails, stop and return the exact error.
+You can pre-approve these steps with script flags:
+
+```powershell
+pwsh -NoProfile -File ./.github/skills/git-pr-creator/scripts/create-pr.ps1 -ApproveInstall -ApproveAuth
+```
+
+If approval is denied, installation/authentication fails, or `gh` remains unavailable, stop and return the exact error.
 
 ### 5. Create the PR
 
@@ -104,8 +110,8 @@ The script will:
 
 - detect the current branch
 - block PR creation from `main`
-- auto-install `gh` when available package managers are present
-- run `gh auth login --web` when authentication is missing
+- ask approval before auto-installing `gh`
+- ask approval before running `gh auth login --web`
 - keep the remote branch name the same as the local one
 - generate a title from the branch name or current changes
 - check for duplicate ticket-prefix PRs

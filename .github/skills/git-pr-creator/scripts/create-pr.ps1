@@ -1,6 +1,8 @@
 param(
     [string]$BaseBranch = 'main',
     [switch]$AllowDuplicatePrefix,
+    [switch]$ApproveInstall,
+    [switch]$ApproveAuth,
     [switch]$DryRun
 )
 
@@ -104,13 +106,57 @@ function Test-GitHubCliAuthenticated {
     return ($LASTEXITCODE -eq 0)
 }
 
+function Confirm-Consent {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Prompt,
+        [switch]$PreApproved,
+        [string]$DeclineMessage
+    )
+
+    if ($PreApproved) {
+        return $true
+    }
+
+    try {
+        $answer = Read-Host "$Prompt [y/N]"
+    }
+    catch {
+        if (-not [string]::IsNullOrWhiteSpace($DeclineMessage)) {
+            Write-Output $DeclineMessage
+        }
+        return $false
+    }
+
+    if ($answer -match '^(y|yes)$') {
+        return $true
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($DeclineMessage)) {
+        Write-Output $DeclineMessage
+    }
+
+    return $false
+}
+
 function Ensure-GitHubCliReady {
     param(
-        [switch]$RequireAuth
+        [switch]$RequireAuth,
+        [switch]$ApproveInstall,
+        [switch]$ApproveAuth
     )
 
     $ghAvailable = [bool](Get-Command gh -ErrorAction SilentlyContinue)
     if (-not $ghAvailable) {
+        $allowInstall = Confirm-Consent `
+            -Prompt 'GitHub CLI (`gh`) is required but not installed. Install it automatically now?' `
+            -PreApproved:$ApproveInstall `
+            -DeclineMessage 'GitHub CLI installation was not approved. Install `gh` manually and rerun this skill, or rerun with -ApproveInstall.'
+
+        if (-not $allowInstall) {
+            Exit-WithMessage -Message 'GitHub CLI (`gh`) is required to continue.'
+        }
+
         $installed = Install-GitHubCli
         if (-not $installed) {
             Exit-WithMessage -Message 'GitHub CLI (`gh`) is required and could not be installed automatically. Install it manually, then rerun this skill.'
@@ -122,6 +168,15 @@ function Ensure-GitHubCliReady {
     }
 
     if (-not (Test-GitHubCliAuthenticated)) {
+        $allowAuth = Confirm-Consent `
+            -Prompt 'GitHub CLI is not authenticated. Start `gh auth login --web` now?' `
+            -PreApproved:$ApproveAuth `
+            -DeclineMessage 'GitHub CLI authentication was not approved. Run `gh auth login` manually and rerun this skill, or rerun with -ApproveAuth.'
+
+        if (-not $allowAuth) {
+            Exit-WithMessage -Message 'GitHub CLI authentication is required to continue.'
+        }
+
         Write-Output 'GitHub CLI is not authenticated. Launching `gh auth login --web`...'
         & gh auth login --web --git-protocol https
         if ($LASTEXITCODE -ne 0) {
@@ -334,7 +389,7 @@ try {
     $duplicateCheckWarning = ''
     if (-not [string]::IsNullOrWhiteSpace($prefix)) {
         if (-not $ghAvailable -and -not $DryRun) {
-            Ensure-GitHubCliReady -RequireAuth
+            Ensure-GitHubCliReady -RequireAuth -ApproveInstall:$ApproveInstall -ApproveAuth:$ApproveAuth
             $ghAvailable = $true
         }
 
@@ -403,7 +458,7 @@ try {
         return
     }
 
-    Ensure-GitHubCliReady -RequireAuth
+    Ensure-GitHubCliReady -RequireAuth -ApproveInstall:$ApproveInstall -ApproveAuth:$ApproveAuth
 
     if (-not $remoteBranchExists) {
         Invoke-Git -Arguments @('push', '--set-upstream', 'origin', $currentBranch) | Out-Null
