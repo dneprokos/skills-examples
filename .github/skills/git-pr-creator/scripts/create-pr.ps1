@@ -20,6 +20,50 @@ function Exit-WithMessage {
     exit $Code
 }
 
+function Get-GitHubPrTokenConfigPath {
+    param(
+        [Parameter(Mandatory)]
+        [string]$RepoRoot
+    )
+
+    return (Join-Path $RepoRoot '.github/skills/git-pr-creator/config/github-pr.local.json')
+}
+
+function Resolve-GitHubToken {
+    param(
+        [Parameter(Mandatory)]
+        [string]$RepoRoot
+    )
+
+    $fromEnv = $env:GITHUB_TOKEN
+    if ([string]::IsNullOrWhiteSpace($fromEnv)) {
+        $fromEnv = $env:GH_TOKEN
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($fromEnv)) {
+        return $fromEnv.Trim()
+    }
+
+    $path = Get-GitHubPrTokenConfigPath -RepoRoot $RepoRoot
+    if (-not (Test-Path -LiteralPath $path)) {
+        return $null
+    }
+
+    try {
+        $raw = Get-Content -LiteralPath $path -Raw -Encoding utf8
+        $obj = $raw | ConvertFrom-Json
+        $token = $obj.github_token
+        if ($token -is [string] -and -not [string]::IsNullOrWhiteSpace($token)) {
+            return $token.Trim()
+        }
+    }
+    catch {
+        return $null
+    }
+
+    return $null
+}
+
 function Invoke-Git {
     param(
         [Parameter(Mandatory)]
@@ -164,6 +208,14 @@ function Ensure-GitHubCliReady {
     }
 
     if (-not $RequireAuth) {
+        return
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($env:GH_TOKEN)) {
+        if (-not (Test-GitHubCliAuthenticated)) {
+            Exit-WithMessage -Message 'GitHub CLI could not authenticate with the configured token. Verify GITHUB_TOKEN or GH_TOKEN, or github-pr.local.json (see .github/skills/git-pr-creator/README.md).'
+        }
+
         return
     }
 
@@ -378,6 +430,24 @@ try {
 
     if ($currentBranch -eq 'main') {
         Exit-WithMessage -Message 'You cannot create a pull request from the main branch with this skill.'
+    }
+
+    if (-not $DryRun) {
+        $resolvedToken = Resolve-GitHubToken -RepoRoot $repoRoot
+        if ([string]::IsNullOrWhiteSpace($resolvedToken)) {
+            Exit-WithMessage -Message @'
+GitHub token required for PR operations (non-DryRun).
+
+Set environment variable GITHUB_TOKEN or GH_TOKEN, or create:
+  .github/skills/git-pr-creator/config/github-pr.local.json
+with a string property "github_token".
+
+Copy github-pr.local.example.json to github-pr.local.json and paste your token.
+Do not commit github-pr.local.json. See .github/skills/git-pr-creator/README.md for how to create a token.
+'@
+        }
+
+        $env:GH_TOKEN = $resolvedToken
     }
 
     $prTitle = Get-ProposedPrTitle -CurrentBranch $currentBranch -BaseBranch $BaseBranch

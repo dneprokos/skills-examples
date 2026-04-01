@@ -74,31 +74,32 @@ Offer exactly these options:
 
 If the answer is `No`, stop immediately.
 
-### 4. Ensure GitHub CLI is ready
+### 4. GitHub token precondition (non-DryRun)
 
-Before creating the PR, ensure `gh` is available and authenticated.
+Before running the helper script **without** `-DryRun`, verify a GitHub token is available **either**:
 
-If `gh` is missing, ask for user approval before auto-installing it with the first available package manager:
+1. Environment variable **`GITHUB_TOKEN`** or **`GH_TOKEN`** (non-empty), **or**
+2. Local file **`.github/skills/git-pr-creator/config/github-pr.local.json`** with a string property **`github_token`**.
 
-- `winget`
-- `choco`
-- `scoop`
+**Precedence:** environment variables win over the JSON file.
 
-If `gh` is not authenticated, ask for user approval before running:
+If neither source provides a token for a real PR run, **stop** and tell the user to follow [README.md](README.md) (copy `github-pr.local.example.json` to `github-pr.local.json`, or set `GH_TOKEN`). **Never** commit `github-pr.local.json` or paste tokens into chat.
 
-```powershell
-gh auth login --web --git-protocol https
-```
+`-DryRun` does **not** require a token (local preview only). Duplicate-prefix checks during DryRun may still need an authenticated `gh` if they call the API.
 
-You can pre-approve these steps with script flags:
+### 5. Ensure GitHub CLI is ready
+
+Ensure `gh` is installed. If `gh` is missing, the script can ask for approval before auto-installing (`winget`, `choco`, or `scoop`); pre-approve with `-ApproveInstall`.
+
+When a token is set (step 4), the script sets **`GH_TOKEN`** for `gh` and skips interactive `gh auth login`. If `GH_TOKEN` is **not** set (DryRun-only paths or edge cases), the script may still prompt for `gh auth login --web` unless pre-approved with `-ApproveAuth`.
 
 ```powershell
 pwsh -NoProfile -File ./.github/skills/git-pr-creator/scripts/create-pr.ps1 -ApproveInstall -ApproveAuth
 ```
 
-If approval is denied, installation/authentication fails, or `gh` remains unavailable, stop and return the exact error.
+If installation fails or `gh` cannot authenticate with the token, stop and return the exact error.
 
-### 5. Create the PR
+### 6. Create the PR
 
 Run the helper script:
 
@@ -110,8 +111,8 @@ The script will:
 
 - detect the current branch
 - block PR creation from `main`
-- ask approval before auto-installing `gh`
-- ask approval before running `gh auth login --web`
+- require a GitHub token for non-DryRun runs (env or `github-pr.local.json`)
+- ask approval before auto-installing `gh` when needed
 - keep the remote branch name the same as the local one
 - generate a title from the branch name or current changes
 - check for duplicate ticket-prefix PRs
@@ -120,6 +121,8 @@ The script will:
 ## Hard rules
 
 - Never create a PR from `main` with this skill.
+- For non-DryRun runs, never proceed without a configured token (`GITHUB_TOKEN`, `GH_TOKEN`, or `github-pr.local.json`).
+- Never commit `github-pr.local.json` or expose tokens in logs or commits.
 - If a ticket-like prefix exists, preserve it as `[PREFIX]: ...` in the title.
 - If the prefix already exists in an open PR, ask the user before continuing.
 - Do not invent a misleading PR title; base it on the branch name and real changes.
