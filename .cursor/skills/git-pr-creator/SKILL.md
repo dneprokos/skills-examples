@@ -116,6 +116,7 @@ The script will:
 - ask approval before auto-installing `gh` when needed
 - keep the remote branch name the same as the local one
 - generate a title from the branch name or current changes
+- build the PR description from **commit subjects** on this branch versus the base (oldest first), not generic skill boilerplate
 - check for duplicate ticket-prefix PRs
 - create the PR against `main` by default
 
@@ -129,3 +130,4 @@ The script will:
 - Do not invent a misleading PR title; base it on the branch name and real changes.
 - Never use force push or rename the branch for PR creation.
 - Return the exact GitHub result after creation.
+- Base the PR body on real commits (`git log` vs base); do not replace that with invented narrative unless the user asks.

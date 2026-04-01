@@ -415,6 +415,62 @@ function Test-RemoteBranchExists {
     return $?
 }
 
+function Get-PrBodyFromBranchCommits {
+    param(
+        [Parameter(Mandatory)]
+        [string]$BaseBranch,
+        [Parameter(Mandatory)]
+        [string]$CurrentBranch
+    )
+
+    $range = "origin/$BaseBranch..HEAD"
+    $raw = ''
+
+    try {
+        $raw = Invoke-Git -Arguments @('log', $range, '--reverse', '--format=%s')
+    }
+    catch {
+        $raw = ''
+    }
+
+    if ([string]::IsNullOrWhiteSpace($raw)) {
+        try {
+            $raw = Invoke-Git -Arguments @('log', "${BaseBranch}..HEAD", '--reverse', '--format=%s')
+        }
+        catch {
+            $raw = ''
+        }
+    }
+
+    if ([string]::IsNullOrWhiteSpace($raw)) {
+        try {
+            $raw = Invoke-Git -Arguments @('log', '-n', '50', '--reverse', '--format=%s')
+        }
+        catch {
+            $raw = ''
+        }
+    }
+
+    $subjects = @($raw -split "`r?`n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    [void]$lines.Add('## Summary')
+    [void]$lines.Add('')
+
+    if ($subjects.Count -eq 0) {
+        [void]$lines.Add("No commit subjects found for range ``origin/$BaseBranch..HEAD``. Run ``git fetch`` and ensure this branch has commits ahead of the base.")
+    }
+    else {
+        [void]$lines.Add('Commits on this branch (oldest first):')
+        [void]$lines.Add('')
+        foreach ($s in $subjects) {
+            [void]$lines.Add("- $s")
+        }
+    }
+
+    return ($lines -join "`n")
+}
+
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     Exit-WithMessage -Message 'Git is not available in this environment.'
 }
@@ -499,13 +555,7 @@ Do not commit github-pr.local.json. See .github/skills/git-pr-creator/README.md 
 
     $remoteBranchExists = Test-RemoteBranchExists -BranchName $currentBranch
 
-    $bodyLines = @(
-        '## Summary',
-        '',
-        '- created from the current branch using the git-pr-creator skill',
-        '- title generated from the branch name and recent branch changes'
-    )
-    $prBody = $bodyLines -join "`n"
+    $prBody = Get-PrBodyFromBranchCommits -BaseBranch $BaseBranch -CurrentBranch $currentBranch
 
     if ($DryRun) {
         $ghAvailable = [bool](Get-Command gh -ErrorAction SilentlyContinue)
@@ -533,6 +583,10 @@ Do not commit github-pr.local.json. See .github/skills/git-pr-creator/README.md 
         else {
             Write-Output "[DryRun] Command: gh pr create --base $BaseBranch --head $currentBranch --title \"$prTitle\""
         }
+
+        Write-Output ''
+        Write-Output '[DryRun] Proposed PR body:'
+        Write-Output $prBody
 
         return
     }

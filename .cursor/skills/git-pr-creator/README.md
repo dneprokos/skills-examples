@@ -8,6 +8,7 @@ A GitHub Copilot skill for creating a pull request from the current branch to `m
 - blocks PR creation from `main`
 - keeps the same local and remote branch name
 - generates a PR title from a ticket prefix, branch suffix, or commit changes
+- builds the PR description from **commit subjects** on this branch compared to the base branch (via `git log`, oldest first)
 - checks for an existing PR with the same ticket prefix before continuing
 
 ## GitHub token (required for real PR runs)
