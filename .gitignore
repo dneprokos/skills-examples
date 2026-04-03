@@ -53,6 +53,9 @@ wheels/
 /github-pr.local.json
 **/git-pr-creator/config/github-pr.local.json
 
+# jira-mcp-assistant local config (never commit)
+**/jira-mcp-assistant/config/jira-defaults.local.json
+
 # Environment variables
 .env
 .env.local

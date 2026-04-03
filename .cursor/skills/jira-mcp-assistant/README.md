@@ -1,31 +1,94 @@
 # Jira MCP Assistant
 
-A small, read-first workflow for working with **Jira Cloud** via the **Atlassian (Jira) MCP** tools already configured in Cursor.
+A workflow skill for working with **Jira Cloud** via the **Atlassian (Jira) MCP** tools already configured in Cursor. Supports read queries (JQL/backlog/sprint) and write operations (create, transition, comment, edit, link).
 
 ## What it does
 
-- Resolves the Atlassian `cloudId`
-- Runs **JQL searches** (and backlog-style views)
-- Returns results as a clean **markdown table** (issue key, summary, type, status, etc.)
-- Never fabricates issues - only reports what MCP returns
+- Loads project defaults from a local config file — no need to repeat project key or site in every prompt
+- Resolves the Atlassian `cloudId` automatically (and caches it within the session)
+- Runs **JQL searches** (backlog, sprint, bug lists, stale issues, and more)
+- Returns results as a clean **markdown table** with clickable issue links
+- **Creates** new Jira issues (Bug, Task, Story, etc.)
+- **Transitions** issue statuses (e.g. "move PROJ-42 to In Review")
+- **Adds comments** to existing issues
+- **Edits** issue fields (priority, labels, fix version, etc.)
+- **Links** two issues together
 
-## Suggested prompt
+---
+
+## Quick setup: local config file
+
+Copy the example config and fill in your values. The skill will load it automatically and use the values as defaults.
+
+```powershell
+Copy-Item ./.cursor/skills/jira-mcp-assistant/config/jira-defaults.local.example.json `
+          ./.cursor/skills/jira-mcp-assistant/config/jira-defaults.local.json
+```
+
+Then edit `jira-defaults.local.json`:
+
+```json
+{
+  "site": "your-site.atlassian.net",
+  "projectKey": "SCRUM",
+  "boardName": "SCRUM board",
+  "defaultIssueType": "Bug",
+  "defaultFields": ["summary", "status", "priority", "assignee", "sprint"],
+  "defaultOrderBy": "Rank ASC",
+  "maxResultsPerPage": 25
+}
+```
+
+`jira-defaults.local.json` is gitignored — safe to store your project key and site there.
+
+---
+
+## Suggested prompts
+
+### Read / search
 
 ```text
 List backlog issues for project SCRUM using the jira-mcp-assistant skill.
 ```
 
-You can also ask for custom JQL:
+```text
+Show me open bugs in the current sprint, ordered by priority.
+```
 
 ```text
 Run this JQL and summarize the results as a table:
 project = SCRUM AND issuetype = Bug ORDER BY updated DESC
 ```
 
+```text
+Show stale issues not updated in more than 7 days.
+```
+
+### Write operations
+
+```text
+Create a Bug in SCRUM: [Checkout] Order total shows $0.00 after applying a discount code on Safari iOS
+```
+
+```text
+Move PROJ-42 to "In Review".
+```
+
+```text
+Add a comment to PROJ-55: "Reproduced on staging. Logs attached to the ticket."
+```
+
+```text
+Change the priority of PROJ-33 to Low.
+```
+
+---
+
 ## Prerequisites
 
 - **Atlassian MCP is connected and authenticated** (OAuth or API token, depending on your org's Rovo MCP settings).
 - Your authenticated user can **browse** the target Jira project and run JQL.
+- For write operations, the user also needs **edit** permissions on the target project.
 
 ## Configure Atlassian MCP auth (API token, no helper scripts)
 
@@ -61,13 +124,13 @@ This skill expects the MCP server to receive an HTTP `Authorization` header.
 
 Notes:
 - Keep `ATLASSIAN_MCP_AUTHORIZATION` out of git. Prefer **user env vars** over committed files.
-- If your org/client setup uses OAuth login, you may not need `mcp.json` at all - Cursor can prompt you to sign in.
+- If your org/client setup uses OAuth login, you may not need `mcp.json` at all — Cursor can prompt you to sign in.
 
 ## OAuth note (optional)
 
 If you configure MCP with OAuth, Cursor typically opens a browser sign-in flow. In that case, you do not need the API-token-based `ATLASSIAN_MCP_AUTHORIZATION` header.
 
-## Helper scripts (optional) - simplify the same steps
+## Helper scripts (optional) — simplify the same steps
 
 If you don't want to do Base64 and env-var setup manually, you can use the repo scripts:
 
@@ -76,38 +139,31 @@ If you don't want to do Base64 and env-var setup manually, you can use the repo 
 
 Security reminder: do not commit secrets or paste tokens into issues/PRs.
 
-## Usage examples
-
-- Backlog-style ranked list:
-  - `List backlog issues for project SCRUM using the jira-mcp-assistant skill.`
-- "Backlog column only" (not in any sprint):
-  - `List issues in SCRUM where sprint is empty.`
-- Custom JQL + table:
-  - `Run this JQL and summarize in a table: project = SCRUM ORDER BY Rank ASC`
+---
 
 ## Output format
 
-By default, the skill can present a table with (at minimum):
-- Issue key
-- Summary
-- Type
-- Status
+By default the skill returns a table with columns from `defaultFields` in your config (or key, summary, type, status as the minimum). Issue keys are clickable links to the Jira UI.
 
-It can add more fields when needed (priority, sprint, assignee, etc.). If results are large and truncated, the skill should fetch additional pages as appropriate.
+When results are paginated: `Showing 25 of 142 issues. Say "next page" to continue.`
 
-## JQL reference
+---
 
-See:
-- [`references/jql-snippets.md`](references/jql-snippets.md)
+## Reference files
+
+- [`references/jql-snippets.md`](references/jql-snippets.md) — JQL templates for backlog, sprint, bugs, staleness, release
+- [`references/write-operations.md`](references/write-operations.md) — MCP tool parameters for create, transition, comment, edit, link
+- [`config/jira-defaults.local.example.json`](config/jira-defaults.local.example.json) — config template
+
+---
 
 ## Extending this skill
 
 To add new Jira workflows without breaking discovery:
 
 1. Keep the umbrella skill id as `jira-mcp-assistant`
-2. Update `SKILL.md` description to include new trigger phrases (e.g. "create issue", "dashboard filter")
+2. Update `SKILL.md` description to include new trigger phrases
 3. Add implementation guidance as new sections in `SKILL.md`
-4. Split large JQL guidance into more files under `references/`
+4. Split large guidance into more files under `references/`
 
 This repo's main README explains the intended extension approach.
-
