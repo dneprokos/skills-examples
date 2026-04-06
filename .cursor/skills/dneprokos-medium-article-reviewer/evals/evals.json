@@ -1,0 +1,23 @@
+{
+  "skill_name": "dneprokos-medium-article-reviewer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review my Medium article: https://medium.com/@dneprokos/mcp-servers-the-tool-awakens-524193ad2d3f",
+      "expected_output": "A full section-by-section review of the MCP Servers article. Because this is one of the author's own published articles, most style categories should score ✅ or ⚠️. The review should highlight strong alignment in: opening greeting, analogy usage (USB hub metaphor), structured progression from theory to practice, and the conclusion's personal reflection. Suggestions (if any) should be minor — e.g., the standalone quoted emphasis pattern is lighter in this article than in others. The Top 3 Suggestions should be concrete and cite specific sections.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Can you review this article for me https://medium.com/@dneprokos/quality-gates-the-watchers-of-software-quality-af19b177e5d1",
+      "expected_output": "A full section-by-section review of the Quality Gates article. This is a non-technical (no code) article, so Code Examples and Technical Depth should be marked N/A. The review should recognize strong alignment in: opening greeting ('Hello to all quality enthusiasts'), clear H2 section structure per SDLC phase, bullet lists for criteria, and the motivational closing ('may the force be with you'). Suggestions might include: the subtitle 'The Watchers of Software Quality' is thematically strong but the main body could use more standalone quoted emphasis moments, or some sections could benefit from a richer personal story beyond the criteria lists.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "review this medium post and tell me what i can improve: https://medium.com/@dneprokos/breaking-silos-with-qa-guilds-as-a-community-of-practice-9f4d85ebc6a4",
+      "expected_output": "A full review of the QA Guilds article with a constructive tone. This article covers a community/process topic, so no code is expected (N/A for code categories). The review should praise: the strong personal narrative arc (I had that feeling too -> we launched a Guild), the frequent use of standalone quoted emphasis ('HR can be your good friend', 'Find your allies'), and the honest reflection in the closing. Suggestions might include: the 'Key Takeaways' section at the end is comprehensive but the 'Personal reflection' subsection could be placed before rather than after the takeaways for better emotional flow.",
+      "files": []
+    }
+  ]
+}
