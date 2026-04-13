@@ -1,6 +1,8 @@
 # Project-Specific Test Patterns — HSCSimUIWin
 
-This reference file contains testing conventions specific to this project. The main SKILL.md is portable across C# projects; swap this file to adapt to a different codebase.
+> **Note:** This is a C#/NUnit-specific configuration for the HSCSimUIWin project. It serves as a concrete example of what a `project-patterns.md` should contain. When porting this skill to a different project or language, replace the contents of this file with your own project's conventions. See `project-patterns-java-example.md`, `project-patterns-python-example.md`, and `project-patterns-typescript-example.md` for equivalent templates in other languages.
+
+This reference file contains testing conventions specific to this project. The main SKILL.md is portable across projects; swap this file to adapt to a different codebase.
 
 ## Frameworks & Versions
 
