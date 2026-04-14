@@ -1,0 +1,31 @@
+{
+  "skill_name": "ut-coder",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Generate unit tests for ExcelColumnNameGenerator. Plan: { \"className\": \"ExcelColumnNameGenerator\", \"language\": \"csharp\", \"testFilePath\": \"Metso.HSC.SimUI.Windows.Common.Tests/Utils/ExcelColumnNameGeneratorTests.cs\", \"dependencies\": [], \"constructorNullGuards\": [], \"nonDeterministicCalls\": [], \"methods\": [{\"name\": \"GetExcelColumnName\", \"isAsync\": false, \"returnType\": \"string\", \"parameters\": [{\"name\": \"columnIndex\", \"typeName\": \"int\", \"classification\": \"primitive\"}], \"testCases\": [{\"id\": \"TC-01\", \"technique\": \"EP\", \"category\": \"happyPath\", \"scenario\": \"valid index 1\", \"inputs\": {\"columnIndex\": 1}, \"expectedOutcome\": \"Returns 'A'\", \"boundaryValues\": []}, {\"id\": \"TC-02\", \"technique\": \"BVA\", \"category\": \"edgeCase\", \"scenario\": \"boundary 26\", \"inputs\": {\"columnIndex\": 26}, \"expectedOutcome\": \"Returns 'Z'\", \"boundaryValues\": [\"26\", \"27\"]}, {\"id\": \"TC-03\", \"technique\": \"EP\", \"category\": \"errorCase\", \"scenario\": \"negative index\", \"inputs\": {\"columnIndex\": -1}, \"expectedOutcome\": \"Throws ArgumentOutOfRangeException\", \"boundaryValues\": []}]}] }. Strategy: Mocked: [], Real instances: [], Constructor null-guards: none, Non-deterministic abstractions: none, Test file: Metso.HSC.SimUI.Windows.Common.Tests/Utils/ExcelColumnNameGeneratorTests.cs, Assert style: FluentAssertions (.Should()).",
+      "expected_output": "A complete C# test file with file-scoped namespace, [TestFixture], [SetUp] if needed, and test methods covering GetExcelColumnName with FluentAssertions and NUnit [TestCase] for parameterized boundary tests. File location at Metso.HSC.SimUI.Windows.Common.Tests/Utils/. AAA pattern with section comments. No NUnit.Framework using statement (global using in .csproj).",
+      "files": [
+        "Metso.HSC.SimUI.Windows.Common/Utilities/ExcelColumnNameGenerator.cs"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Generate unit tests for PaymentService, skipReview: true",
+      "expected_output": "Because skipReview is true, the Coder generates the complete test file immediately after receiving the Analyst plan and Architect strategy without pausing for confirmation. The output includes the test file with AAA pattern, mocked interfaces, real value objects/DTOs, and constructor null-guard tests.",
+      "files": ["Services/PaymentService.cs"]
+    },
+    {
+      "id": 3,
+      "prompt": "Generate unit tests for UserFactory using this plan and strategy: [plan with IUserRepository and IEmailService as interfaces, defaultRole as primitive, constructorNullGuards for both interfaces]",
+      "expected_output": "A complete test file where IUserRepository and IEmailService are instantiated with Substitute.For<> (NSubstitute), defaultRole is passed as a literal string value (not mocked), and there are exactly two constructor null-guard tests: one passing null for userRepository with valid emailService and defaultRole, one passing null for emailService with valid userRepository and defaultRole. Both null-guard tests assert ArgumentNullException.",
+      "files": ["Factories/UserFactory.cs"]
+    },
+    {
+      "id": 4,
+      "prompt": "Generate unit tests for ReportGenerator using this plan with IDateTimeProvider abstraction",
+      "expected_output": "The final test file mocks IDateTimeProvider (not DateTime.UtcNow directly). The mock is configured to return a fixed DateTimeOffset value. Tests that assert on time-dependent behavior use that fixed value. DateTime.UtcNow must not appear anywhere in the test file.",
+      "files": ["Services/ReportGenerator.cs"]
+    }
+  ]
+}

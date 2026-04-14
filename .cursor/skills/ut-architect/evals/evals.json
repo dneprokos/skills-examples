@@ -1,0 +1,30 @@
+{
+  "skill_name": "ut-architect",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Define the mocking strategy for this test plan: { \"className\": \"OrderService\", \"language\": \"csharp\", \"testFilePath\": \"Tests/Services/OrderServiceTests.cs\", \"dependencies\": [{\"name\": \"orderRepository\", \"typeName\": \"IOrderRepository\", \"classification\": \"interface\", \"mockStrategy\": \"mock\"}, {\"name\": \"shippingAddress\", \"typeName\": \"Address\", \"classification\": \"valueObject\", \"mockStrategy\": \"real\"}, {\"name\": \"createOrderRequest\", \"typeName\": \"CreateOrderRequest\", \"classification\": \"dto\", \"mockStrategy\": \"real\"}], \"constructorNullGuards\": [{\"paramName\": \"orderRepository\", \"typeName\": \"IOrderRepository\", \"expectedException\": \"ArgumentNullException\"}], \"nonDeterministicCalls\": [], \"methods\": [] }",
+      "expected_output": "Architect strategy listing: Mocked: [IOrderRepository], Real instances: [Address, CreateOrderRequest], Constructor null-guards: [orderRepository → ArgumentNullException(\"orderRepository\")], Non-deterministic abstractions: none, Test file: Tests/Services/OrderServiceTests.cs, Assert style from project-patterns.md (should be FluentAssertions). Address and CreateOrderRequest must NOT appear in the mocked list."
+    },
+    {
+      "id": 2,
+      "prompt": "Define the mocking strategy for this test plan: { \"className\": \"ReportGenerator\", \"language\": \"csharp\", \"testFilePath\": \"Tests/Services/ReportGeneratorTests.cs\", \"dependencies\": [{\"name\": \"reportRepository\", \"typeName\": \"IReportRepository\", \"classification\": \"interface\", \"mockStrategy\": \"mock\"}], \"constructorNullGuards\": [{\"paramName\": \"reportRepository\", \"typeName\": \"IReportRepository\", \"expectedException\": \"ArgumentNullException\"}], \"nonDeterministicCalls\": [{\"location\": \"GenerateReport\", \"callExpression\": \"DateTime.UtcNow\", \"category\": \"time\", \"stabilityWarning\": \"Time-sensitive tests will fail non-deterministically\", \"suggestedAbstraction\": {\"interfaceName\": \"IDateTimeProvider\", \"methodSignature\": \"DateTimeOffset UtcNow { get; }\", \"note\": \"Inject and mock.\"}}], \"methods\": [] }",
+      "expected_output": "Architect strategy listing IDateTimeProvider in the Mocked list (not just as an abstraction note), specifying it must return a fixed DateTimeOffset in tests, and listing DateTime.UtcNow → inject IDateTimeProvider in the Non-deterministic abstractions section."
+    },
+    {
+      "id": 3,
+      "prompt": "Define the mocking strategy for this test plan: { \"className\": \"UserFactory\", \"language\": \"csharp\", \"testFilePath\": \"Tests/Factories/UserFactoryTests.cs\", \"dependencies\": [{\"name\": \"userRepository\", \"typeName\": \"IUserRepository\", \"classification\": \"interface\", \"mockStrategy\": \"mock\"}, {\"name\": \"emailService\", \"typeName\": \"IEmailService\", \"classification\": \"interface\", \"mockStrategy\": \"mock\"}, {\"name\": \"defaultRole\", \"typeName\": \"string\", \"classification\": \"primitive\", \"mockStrategy\": \"real\"}], \"constructorNullGuards\": [{\"paramName\": \"userRepository\", \"typeName\": \"IUserRepository\", \"expectedException\": \"ArgumentNullException\"}, {\"paramName\": \"emailService\", \"typeName\": \"IEmailService\", \"expectedException\": \"ArgumentNullException\"}], \"nonDeterministicCalls\": [], \"methods\": [] }",
+      "expected_output": "Architect strategy with both IUserRepository and IEmailService in Mocked list, string/primitive defaultRole in Real instances, and constructor null-guards listing two entries: userRepository → ArgumentNullException(\"userRepository\") and emailService → ArgumentNullException(\"emailService\"). The primitive 'defaultRole' must NOT appear in null-guards."
+    },
+    {
+      "id": 4,
+      "prompt": "Define the mocking strategy for this test plan: { \"className\": \"com.example.services.OrderService\", \"language\": \"java\", \"testFilePath\": \"src/test/java/com/example/services/OrderServiceTest.java\", \"dependencies\": [{\"name\": \"orderRepository\", \"typeName\": \"OrderRepository\", \"classification\": \"interface\", \"mockStrategy\": \"mock\"}, {\"name\": \"shippingAddress\", \"typeName\": \"Address\", \"classification\": \"valueObject\", \"mockStrategy\": \"real\"}], \"constructorNullGuards\": [{\"paramName\": \"orderRepository\", \"typeName\": \"OrderRepository\", \"expectedException\": \"NullPointerException\"}], \"nonDeterministicCalls\": [], \"methods\": [] }",
+      "expected_output": "Architect strategy listing: Mocked: [OrderRepository], Real instances: [Address], Constructor null-guards: [orderRepository → NullPointerException], Non-deterministic abstractions: none, Test file: src/test/java/com/example/services/OrderServiceTest.java, Assert style: AssertJ (assertThat). Address must NOT appear in the mocked list. The null-guard exception must be NullPointerException (not ArgumentNullException — this is Java)."
+    },
+    {
+      "id": 5,
+      "prompt": "Define the mocking strategy for this test plan: { \"className\": \"UserService\", \"language\": \"python\", \"testFilePath\": \"tests/services/test_user_service.py\", \"dependencies\": [{\"name\": \"user_repository\", \"typeName\": \"UserRepository\", \"classification\": \"interface\", \"mockStrategy\": \"mock\"}, {\"name\": \"email\", \"typeName\": \"str\", \"classification\": \"primitive\", \"mockStrategy\": \"real\"}], \"constructorNullGuards\": [{\"paramName\": \"user_repository\", \"typeName\": \"UserRepository\", \"expectedException\": \"TypeError\"}], \"nonDeterministicCalls\": [], \"methods\": [] }",
+      "expected_output": "Architect strategy listing: Mocked: [UserRepository], Real instances: [str/email], Constructor null-guards: [user_repository → TypeError], Non-deterministic abstractions: none, Test file: tests/services/test_user_service.py, Assert style: plain pytest assert statements. The null-guard exception must be TypeError (not ArgumentNullException or NullPointerException — this is Python). The primitive 'email' must NOT appear in null-guards."
+    }
+  ]
+}
