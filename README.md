@@ -11,20 +11,51 @@ Example GitHub Copilot skills you can copy into `.github/skills/` and adapt for 
 
 Each skill in this repository targets a specific workflow:
 
-| Skill                                                                        | Purpose                                                                            | Contents                                    |
-| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------- |
-| [`api-test-scenario-generator`](.github/skills/api-test-scenario-generator/) | Generates structured REST API test scenarios with boundary and validation coverage | `SKILL.md`, templates, config, script       |
-| [`rest-api-design`](.github/skills/rest-api-design/)                         | Designs and reviews REST APIs: paths, HTTP semantics, pagination, versioning, errors, OpenAPI | `SKILL.md`, README, `references/`           |
-| [`git-branch-creator`](.github/skills/git-branch-creator/)                   | Creates a new Git branch after checking that `main` is ready and up to date        | `SKILL.md`, README, script                  |
-| [`git-commit-creator`](.github/skills/git-commit-creator/)                   | Creates a commit on the current branch from collected git changes                  | `SKILL.md`, README, references, script      |
-| [`git-pr-creator`](.github/skills/git-pr-creator/)                           | Creates a pull request from the current branch and handles ticket-style PR titles  | `SKILL.md`, README, references, script      |
-| [`git-push-creator`](.github/skills/git-push-creator/)                       | Pushes the current local branch to `origin` using the same branch name             | `SKILL.md`, README, script                  |
-| [`git-workflow-orchestrator`](.github/skills/git-workflow-orchestrator/)     | Phased branch, commit, push, and PR with per-phase status and PR URL               | `SKILL.md`, script                          |
-| [`meeting-notes-summarizer`](.github/skills/meeting-notes-summarizer/)       | Turns transcripts or messy notes into a Teams/email-ready structured recap       | `SKILL.md`, references                      |
-| [`readme-polisher`](.github/skills/readme-polisher/)                         | Helps draft or improve a repository `README.md` using real project evidence        | `SKILL.md`, references, assets, scan script |
-| [`token-usage-reporting`](.github/skills/token-usage-reporting/)             | Produces day/week/month token usage reports in table format                        | `SKILL.md`, config, template, script        |
-| [`jira-mcp-assistant`](.github/skills/jira-mcp-assistant/)                   | Jira Cloud JQL and backlog-style lists via Atlassian MCP (read-first; extend for writes) | `SKILL.md`, `references/`              |
+| Skill                                                                        | Purpose                                                                                                                                                                                 | Contents                                                                    |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| [`api-test-scenario-generator`](.github/skills/api-test-scenario-generator/) | Generates structured REST API test scenarios with boundary and validation coverage                                                                                                      | `SKILL.md`, templates, config, script                                       |
+| [`rest-api-design`](.github/skills/rest-api-design/)                         | Designs and reviews REST APIs: paths, HTTP semantics, pagination, versioning, errors, OpenAPI                                                                                           | `SKILL.md`, README, `references/`                                           |
+| [`ut-analyst`](.github/skills/ut-analyst/)                                   | **Phase 1** — Classifies dependencies, detects non-determinism, enumerates test cases using EP/BVA/DT/ST, produces JSON test plan                                                       | `SKILL.md`, README, `references/`, `evals/`                                 |
+| [`ut-architect`](.github/skills/ut-architect/)                               | **Phase 2** — Assigns mock/real strategy per dependency, resolves assertion style, lists null-guard tests and non-deterministic abstractions                                            | `SKILL.md`, README, `references/`, `evals/`                                 |
+| [`ut-coder`](.github/skills/ut-coder/)                                       | **Phase 3** — Generates the complete, compilable test file: AAA pattern, parameterized tests, mocks, null-guards, setup/teardown                                                        | `SKILL.md`, README, `references/`, `evals/`                                 |
+| [`git-branch-creator`](.github/skills/git-branch-creator/)                   | Creates a new Git branch after checking that `main` is ready and up to date                                                                                                             | `SKILL.md`, README, script                                                  |
+| [`git-commit-creator`](.github/skills/git-commit-creator/)                   | Creates a commit on the current branch from collected git changes                                                                                                                       | `SKILL.md`, README, references, script                                      |
+| [`git-pr-creator`](.github/skills/git-pr-creator/)                           | Creates a pull request from the current branch and handles ticket-style PR titles                                                                                                       | `SKILL.md`, README, references, script                                      |
+| [`git-push-creator`](.github/skills/git-push-creator/)                       | Pushes the current local branch to `origin` using the same branch name                                                                                                                  | `SKILL.md`, README, script                                                  |
+| [`git-workflow-orchestrator`](.github/skills/git-workflow-orchestrator/)     | Phased branch, commit, push, and PR with per-phase status and PR URL                                                                                                                    | `SKILL.md`, script                                                          |
+| [`meeting-notes-summarizer`](.github/skills/meeting-notes-summarizer/)       | Turns transcripts or messy notes into a Teams/email-ready structured recap                                                                                                              | `SKILL.md`, references                                                      |
+| [`readme-polisher`](.github/skills/readme-polisher/)                         | Helps draft or improve a repository `README.md` using real project evidence                                                                                                             | `SKILL.md`, references, assets, scan script                                 |
+| [`token-usage-reporting`](.github/skills/token-usage-reporting/)             | Produces day/week/month token usage reports in table format                                                                                                                             | `SKILL.md`, config, template, script                                        |
+| [`jira-mcp-assistant`](.github/skills/jira-mcp-assistant/)                   | Jira Cloud JQL and backlog-style lists via Atlassian MCP (read-first; extend for writes)                                                                                                | `SKILL.md`, `references/`                                                   |
 | [`skill-creator`](.github/skills/skill-creator/)                             | Create, test, and iteratively improve agent skills (from [anthropics/skills](https://github.com/anthropics/skills); see [skills.sh](https://skills.sh/anthropics/skills/skill-creator)) | `SKILL.md`, `agents/`, `scripts/`, `eval-viewer/`, `assets/`, `references/` |
+
+## Unit Test Generator Agent
+
+The three `ut-*` skills above are coordinated by a dedicated agent: [`.github/agents/unit-test-generator.agent.md`](.github/agents/unit-test-generator.agent.md).
+
+The agent enforces a strict **Analyst → Architect → Coder** pipeline where responsibilities are never combined across phases:
+
+```
+Source class
+     │
+     ▼
+Phase 1 — Analyst    → JSON test plan  (dependencies, test cases, null-guards, non-determinism)
+     │
+     ▼
+Phase 2 — Architect  → Strategy summary (mock/real assignments, assertion style, abstractions)
+     │
+     ▼
+Phase 3 — Coder      → Complete, compilable test file
+```
+
+**Usage:** Open a source file in the editor, then invoke the agent:
+
+```text
+@unit-test-generator generate tests for MyService
+@unit-test-generator generate tests for the open file, skipReview: true
+```
+
+Each skill can also be used **standalone** via slash commands (`/ut-analyst`, `/ut-architect`, `/ut-coder`) when you want to run only one phase or inspect intermediate outputs.
 
 ## Getting Started
 
@@ -46,6 +77,11 @@ cd copilot-skill-examples
 Improve this repository README using the readme-polisher skill.
 Generate API test scenarios for POST /api/users.
 Review these REST endpoints using the rest-api-design skill (paste OpenAPI or routes).
+@unit-test-generator generate tests for MyService
+@unit-test-generator generate tests for the open file, skipReview: true
+/ut-analyst analyze MyService
+/ut-architect [paste Analyst JSON]
+/ut-coder [paste Analyst JSON and Architect strategy]
 Create a new branch named feature/add-login-flow.
 Commit the current branch using the git-commit-creator skill.
 Push the current branch using the git-push-creator skill.
@@ -62,6 +98,15 @@ Help me draft and evaluate a new agent skill using the skill-creator skill.
 This repository also mirrors the same skill folders under [`.cursor/skills/`](.cursor/skills/) for Cursor Agent Skills; copy from either location depending on your editor.
 
 **`skill-creator` (Anthropic):** use [`.github/skills/skill-creator/`](.github/skills/skill-creator/) for Copilot-style layouts and [`.cursor/skills/skill-creator/`](.cursor/skills/skill-creator/) for Cursor; the contents are the same—keep both in sync when you update.
+
+### Maintaining the Cursor Mirror
+
+The `.cursor/skills/` directory is a manual mirror of `.github/skills/`. When you modify a skill, copy the updated files to the matching path under `.cursor/skills/` as well. A few known gaps in the Cursor mirror:
+
+- **`ut-architect`** — `.cursor/skills/ut-architect/` has no `evals/` folder. Add one if you adopt this skill under Cursor and want eval coverage.
+- **Project-patterns templates** — `project-patterns-java-example.md`, `project-patterns-python-example.md`, and `project-patterns-typescript-example.md` exist under `.github/skills/ut-coder/references/` but may not be present in all Cursor skill folders. Copy them if needed.
+
+Shared reference files (`project-patterns.md`, `analyst-test-plan-schema.md`) are replicated across multiple skill folders. Each copy includes a **Sync** callout noting the canonical source — update all copies together.
 
 ## Jira skills and Atlassian MCP
 
@@ -97,6 +142,8 @@ copilot-skill-examples/
 │   └── assets/
 │       └── skills-hero.svg
 ├── .github/
+│   ├── agents/
+│   │   └── unit-test-generator.agent.md  # Orchestrates the ut-* pipeline
 │   └── skills/
 │       ├── api-test-scenario-generator/
 │       ├── rest-api-design/
@@ -109,7 +156,10 @@ copilot-skill-examples/
 │       ├── readme-polisher/
 │       ├── token-usage-reporting/
 │       ├── jira-mcp-assistant/
-│       └── skill-creator/
+│       ├── skill-creator/
+│       ├── ut-analyst/     # Phase 1: dependency analysis + test plan
+│       ├── ut-architect/   # Phase 2: mocking strategy + structure
+│       └── ut-coder/       # Phase 3: test file generation
 ├── .cursor/
 │   └── skills/    # Cursor Agent copy of the same skills (keep in sync when contributing)
 ├── README.md
