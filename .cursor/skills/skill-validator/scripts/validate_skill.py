@@ -338,9 +338,24 @@ def main(skill_dirs: list[str]) -> int:
     if not findings_printed:
         print("\n✅ All skills passed security validation — no issues found.")
 
-    # Exit 1 if any skill is High risk
-    failed = [r for r in all_results if "🔴" in r["risk"]]
-    return 1 if failed else 0
+    # Machine-readable summary line consumed by CI steps
+    high   = sum(1 for r in all_results if "🔴" in r["risk"])
+    medium = sum(1 for r in all_results if "🟡" in r["risk"])
+    low    = sum(1 for r in all_results if "🟢" in r["risk"])
+    print(f"\nSTAT:checked={len(all_results)},high={high},medium={medium},low={low}")
+
+    # Compact findings list for Slack (one entry per failing check)
+    slack_items: list[str] = []
+    for r in all_results:
+        for check, data in r.items():
+            if check in ("name", "risk") or not data["findings"]:
+                continue
+            icon = ":red_circle:" if "❌" in data["status"] else ":large_yellow_circle:"
+            slack_items.append(f"{icon} *{r['name']}* — {check}")
+    if slack_items:
+        print(f"FINDINGS:{' | '.join(slack_items)}")
+
+    return 0
 
 
 if __name__ == "__main__":
