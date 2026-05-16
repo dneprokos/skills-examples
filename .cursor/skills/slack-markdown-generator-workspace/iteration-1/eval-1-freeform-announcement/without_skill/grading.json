@@ -1,0 +1,60 @@
+{
+  "expectations": [
+    {
+      "text": "Output file slack-message.json is valid JSON",
+      "passed": true,
+      "evidence": "Parsed successfully"
+    },
+    {
+      "text": "Top-level key is 'blocks' and its value is an array",
+      "passed": true,
+      "evidence": "blocks=list"
+    },
+    {
+      "text": "Every block in the array has 'type' equal to 'markdown'",
+      "passed": false,
+      "evidence": "types=['header', 'section', 'divider', 'section', 'section', 'divider', 'section', 'context']"
+    },
+    {
+      "text": "Every block in the array has a non-empty 'text' field",
+      "passed": false,
+      "evidence": "texts=[True, True, False, True, True, False, True, False]"
+    },
+    {
+      "text": "No block contains image markdown syntax '![' anywhere in its text",
+      "passed": true,
+      "evidence": "No image syntax found"
+    },
+    {
+      "text": "The text mentions 'v2.5' or 'version 2.5' preserving the version number",
+      "passed": false,
+      "evidence": "Error: 'dict' object has no attribute 'lower'"
+    },
+    {
+      "text": "The text mentions the analytics dashboard",
+      "passed": false,
+      "evidence": "Error: 'dict' object has no attribute 'lower'"
+    },
+    {
+      "text": "The text mentions the login bug fix",
+      "passed": false,
+      "evidence": "Error: 'dict' object has no attribute 'lower'"
+    },
+    {
+      "text": "The text mentions the legacy API or v1 API removal",
+      "passed": false,
+      "evidence": "Error: 'dict' object has no attribute 'lower'"
+    },
+    {
+      "text": "No single block's text field exceeds 12000 characters",
+      "passed": true,
+      "evidence": "max chars=3"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 6,
+    "total": 10,
+    "pass_rate": 0.4
+  }
+}

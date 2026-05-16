@@ -1,0 +1,60 @@
+{
+  "expectations": [
+    {
+      "text": "Output file slack-message.json is valid JSON",
+      "passed": true,
+      "evidence": "Parsed successfully"
+    },
+    {
+      "text": "Top-level key is 'blocks' and its value is an array",
+      "passed": true,
+      "evidence": "blocks=list"
+    },
+    {
+      "text": "Every block in the array has 'type' equal to 'markdown'",
+      "passed": false,
+      "evidence": "types=['header', 'section', 'divider', 'section', 'divider', 'section', 'divider', 'section', 'divider', 'section']"
+    },
+    {
+      "text": "Every block in the array has a non-empty 'text' field",
+      "passed": false,
+      "evidence": "texts=[True, False, False, True, False, True, False, True, False, True]"
+    },
+    {
+      "text": "No block contains image markdown syntax '![' anywhere in its text",
+      "passed": true,
+      "evidence": "No image syntax found"
+    },
+    {
+      "text": "The project name 'Orion Data Pipeline' appears in the output",
+      "passed": false,
+      "evidence": "Checked for 'Orion Data Pipeline'"
+    },
+    {
+      "text": "The owner 'Sarah Chen' is mentioned",
+      "passed": false,
+      "evidence": "Checked for 'Sarah Chen'"
+    },
+    {
+      "text": "The IT ticket reference 'IT-4482' is preserved",
+      "passed": false,
+      "evidence": "Checked for 'IT-4482'"
+    },
+    {
+      "text": "The status 'At Risk' is present in the output",
+      "passed": false,
+      "evidence": "Error: 'dict' object has no attribute 'lower'"
+    },
+    {
+      "text": "No single block's text field exceeds 12000 characters",
+      "passed": true,
+      "evidence": "max chars=3"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 6,
+    "total": 10,
+    "pass_rate": 0.4
+  }
+}

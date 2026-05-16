@@ -1,0 +1,60 @@
+{
+  "expectations": [
+    {
+      "text": "Output file slack-message.json is valid JSON",
+      "passed": true,
+      "evidence": "Parsed successfully"
+    },
+    {
+      "text": "Top-level key is 'blocks' and its value is an array",
+      "passed": true,
+      "evidence": "blocks=list"
+    },
+    {
+      "text": "Every block in the array has 'type' equal to 'markdown'",
+      "passed": false,
+      "evidence": "types=['header', 'section', 'image', 'section', 'section', 'section', 'section', 'section', 'section', 'divider', 'section']"
+    },
+    {
+      "text": "Every block in the array has a non-empty 'text' field",
+      "passed": false,
+      "evidence": "texts=[True, True, False, True, True, True, True, True, True, False, True]"
+    },
+    {
+      "text": "No block text contains the pattern '![' (image embed syntax)",
+      "passed": true,
+      "evidence": "No image syntax found"
+    },
+    {
+      "text": "The converted image URL 'cdn.example.com/images/phoenix-banner.png' appears as a plain link or is referenced in the output",
+      "passed": false,
+      "evidence": "Checked for cdn.example.com URL"
+    },
+    {
+      "text": "The table with Issue/Severity/Fixed columns is present in at least one block's text",
+      "passed": false,
+      "evidence": "Checked for table column 'Severity'"
+    },
+    {
+      "text": "The JavaScript code block (getReport) is present in at least one block's text",
+      "passed": false,
+      "evidence": "Checked for 'getReport'"
+    },
+    {
+      "text": "The blockquote about backing up configuration files is present",
+      "passed": false,
+      "evidence": "Error: 'dict' object has no attribute 'lower'"
+    },
+    {
+      "text": "No single block's text field exceeds 12000 characters",
+      "passed": true,
+      "evidence": "max chars=3"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 6,
+    "total": 10,
+    "pass_rate": 0.4
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "📊 Project Status Update: Orion Data Pipeline",
+        "emoji": true
+      }
+    },
+    {
+      "type": "section",
+      "fields": [
+        {
+          "type": "mrkdwn",
+          "text": "*Status:*\n🔴 At Risk"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Owner:*\nSarah Chen"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Sprint:*\n24 (ends May 16)"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Channel:*\n#engineering"
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*Progress*\n✅ *Completed:* Schema design, ingestion service, unit tests\n🔄 *In Progress:* Integration tests (70%), staging deployment\n🚫 *Blocked:* Prod credentials not yet provisioned (waiting on IT — ticket #IT-4482)"
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*🚧 Blockers*\n1. *Prod DB credentials* — IT ticket #IT-4482, due May 13\n2. *Firewall rule update* — needs NetOps approval, submitted May 9"
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*📋 Next Steps*\n• Sarah to follow up on #IT-4482 by EOD May 12\n• NetOps approval expected May 14\n• Staging smoke test scheduled May 15\n• Go/no-go call *May 16 at 10:00 AM*"
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "⚠️ *Risk:* If IT ticket is not resolved by May 13, go-live will slip to May 19."
+      }
+    }
+  ]
+}

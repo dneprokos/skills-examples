@@ -1,0 +1,59 @@
+{
+  "skill_name": "slack-markdown-generator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Hey, can you turn this into a Slack message for me?\n\n\"Hey team, just a heads-up — we're releasing v2.5 tomorrow morning around 9 AM. Key highlights: brand new analytics dashboard, fixed the login timeout bug that's been annoying everyone, and we've removed the legacy /v1 API endpoints (migrate to /v2 if you haven't already). Please test staging before EOD today and ping @releases-channel if you find anything. Thanks!\"",
+      "expected_output": "A valid Slack Block Kit JSON file (slack-message.json) containing a blocks array with at least one markdown block. The content should be well-structured with the key highlights organised (dashboard, bug fix, API removal), the original meaning preserved, and no unsupported syntax.",
+      "files": [],
+      "assertions": [
+        "Output file slack-message.json is valid JSON",
+        "Top-level key is 'blocks' and its value is an array",
+        "Every block in the array has 'type' equal to 'markdown'",
+        "Every block in the array has a non-empty 'text' field",
+        "No block contains image markdown syntax '![' anywhere in its text",
+        "The text mentions 'v2.5' or 'version 2.5' preserving the version number",
+        "The text mentions the analytics dashboard",
+        "The text mentions the login bug fix",
+        "The text mentions the legacy API or v1 API removal",
+        "No single block's text field exceeds 12000 characters"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Please convert this markdown file into a Slack Block Kit payload. The file is at evals/files/eval2-standard-markdown.md\n\nMake sure you handle any Slack-incompatible syntax appropriately.",
+      "expected_output": "A valid Slack Block Kit JSON file (slack-message.json) where the release notes content is preserved. The image embed should be converted to a hyperlink. The table, code block, blockquote, and lists should all be present. The skill should note what conversions were made.",
+      "files": ["evals/files/eval2-standard-markdown.md"],
+      "assertions": [
+        "Output file slack-message.json is valid JSON",
+        "Top-level key is 'blocks' and its value is an array",
+        "Every block in the array has 'type' equal to 'markdown'",
+        "Every block in the array has a non-empty 'text' field",
+        "No block text contains the pattern '![' (image embed syntax)",
+        "The converted image URL 'cdn.example.com/images/phoenix-banner.png' appears as a plain link or is referenced in the output",
+        "The table with Issue/Severity/Fixed columns is present in at least one block's text",
+        "The JavaScript code block (getReport) is present in at least one block's text",
+        "The blockquote about backing up configuration files is present",
+        "No single block's text field exceeds 12000 characters"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I need to post a project status update in our #engineering Slack channel. Here's the data:\n\n(contents of evals/files/eval3-structured-data.md)\n\nPlease format this as a clean Slack message.",
+      "expected_output": "A valid Slack Block Kit JSON file (slack-message.json) that presents the structured status data in a readable Slack message. The output should use bold labels, organised sections for status/progress/blockers/next steps, and preserve all the key details including the IT ticket number, owner name, and risk note.",
+      "files": ["evals/files/eval3-structured-data.md"],
+      "assertions": [
+        "Output file slack-message.json is valid JSON",
+        "Top-level key is 'blocks' and its value is an array",
+        "Every block in the array has 'type' equal to 'markdown'",
+        "Every block in the array has a non-empty 'text' field",
+        "No block contains image markdown syntax '![' anywhere in its text",
+        "The project name 'Orion Data Pipeline' appears in the output",
+        "The owner 'Sarah Chen' is mentioned",
+        "The IT ticket reference 'IT-4482' is preserved",
+        "The status 'At Risk' is present in the output",
+        "No single block's text field exceeds 12000 characters"
+      ]
+    }
+  ]
+}
