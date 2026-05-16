@@ -33,19 +33,20 @@ If no JSON plan is provided and the user has not run Phase 1, respond with:
 
 For each dependency in the plan:
 
-| Classification | Strategy | Rationale |
-|---|---|---|
-| `interface` | `mock` | Behavioral contract — must be isolated |
-| `abstract` | `mock` | Behavioral contract — must be isolated |
-| `valueObject` | `real` | Immutable data — real instances are simpler and more accurate |
-| `dto` | `real` | Data container — construct with real values |
-| `primitive` | `real` | Value type — no isolation needed |
+| Classification | Strategy | Rationale                                                     |
+| -------------- | -------- | ------------------------------------------------------------- |
+| `interface`    | `mock`   | Behavioral contract — must be isolated                        |
+| `abstract`     | `mock`   | Behavioral contract — must be isolated                        |
+| `valueObject`  | `real`   | Immutable data — real instances are simpler and more accurate |
+| `dto`          | `real`   | Data container — construct with real values                   |
+| `primitive`    | `real`   | Value type — no isolation needed                              |
 
 **Rule:** Never mock Value Objects, DTOs, records, data classes, or primitives. Construct real instances. This is mandatory and overrides any other guidance.
 
 ### 2. Resolve Test File Location
 
 Use `references/project-patterns.md` to determine:
+
 - The exact test project name and folder structure
 - Whether the file mirrors the source folder hierarchy
 - The test file naming convention (`MyClassTests.cs`, `MyClassTest.java`, `test_my_class.py`, `MyClass.test.ts`)
@@ -53,21 +54,23 @@ Use `references/project-patterns.md` to determine:
 ### 3. List Constructor Null-Guard Tests
 
 For each entry in `constructorNullGuards[]`:
+
 - Confirm the expected exception type matches the project's language convention (from `project-patterns.md`)
 - List the parameter name alongside its expected exception
 
 Language defaults if not specified in `project-patterns.md`:
 
-| Language | Null exception |
-|---|---|
-| C# | `ArgumentNullException` |
-| Java | `NullPointerException` |
-| Python | `TypeError` or `ValueError` |
-| TypeScript | `TypeError` |
+| Language   | Null exception              |
+| ---------- | --------------------------- |
+| C#         | `ArgumentNullException`     |
+| Java       | `NullPointerException`      |
+| Python     | `TypeError` or `ValueError` |
+| TypeScript | `TypeError`                 |
 
 ### 4. Specify Abstractions for Non-Deterministic Calls
 
 For each entry in `nonDeterministicCalls[]`, specify:
+
 - The abstraction interface to inject (e.g., `IDateTimeProvider`)
 - That the abstraction will be classified as `interface` → `mock`
 - The mock should return a fixed, predictable value in tests

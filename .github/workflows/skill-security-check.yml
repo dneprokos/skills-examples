@@ -1,0 +1,137 @@
+name: Skill Security Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - ".github/skills/**"
+      - ".cursor/skills/**"
+      - ".claude/skills/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    name: Validate changed skills
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed skill folders
+        id: detect
+        run: |
+          BASE=${{ github.event.pull_request.base.sha }}
+          HEAD=${{ github.event.pull_request.head.sha }}
+
+          CHANGED=$(git diff --name-only "$BASE"..."$HEAD")
+          echo "Changed files:"
+          echo "$CHANGED"
+
+          # Collect unique skill directory paths from all three skill roots
+          SKILL_DIRS=$(echo "$CHANGED" \
+            | grep -E '^\.github/skills/[^/]+/' \
+            | sed 's|^\(\.github/skills/[^/]*\)/.*|\1|' \
+            | sort -u)
+
+          if [ -z "$SKILL_DIRS" ]; then
+            echo "No skill changes detected — skipping validation."
+            echo "skill_dirs=" >> "$GITHUB_OUTPUT"
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Skills to validate:"
+            echo "$SKILL_DIRS"
+            # Space-separated list for the next step
+            DIRS_FLAT=$(echo "$SKILL_DIRS" | tr '\n' ' ' | sed 's/ $//')
+            echo "skill_dirs=$DIRS_FLAT" >> "$GITHUB_OUTPUT"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Python
+        if: steps.detect.outputs.has_changes == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        if: steps.detect.outputs.has_changes == 'true'
+        run: pip install pyyaml
+
+      - name: Run skill validator
+        if: steps.detect.outputs.has_changes == 'true'
+        id: validate
+        env:
+          PYTHONUTF8: "1"
+        run: |
+          SKILL_DIRS="${{ steps.detect.outputs.skill_dirs }}"
+
+          # Run validator; capture output for both summary and PR comment
+          OUTPUT=$(python .github/skills/skill-validator/scripts/validate_skill.py $SKILL_DIRS)
+          EXIT_CODE=$?
+
+          echo "$OUTPUT"
+
+          # Write to job summary
+          echo "$OUTPUT" >> "$GITHUB_STEP_SUMMARY"
+
+          # Persist output and exit code for the comment step
+          {
+            echo 'report<<EOF'
+            echo "$OUTPUT"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+
+          exit $EXIT_CODE
+
+      - name: Post results as PR comment
+        if: steps.detect.outputs.has_changes == 'true' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const report = `${{ steps.validate.outputs.report }}`;
+            const exitCode = '${{ steps.validate.outputs.exit_code }}';
+            const passed = exitCode === '0';
+
+            const header = passed
+              ? '## ✅ Skill Security Check passed'
+              : '## ❌ Skill Security Check failed';
+
+            const body = `${header}\n\n${report}\n\n_Powered by [skill-validator](.github/skills/skill-validator/SKILL.md)_`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            // Update existing bot comment if present, otherwise create new one
+            const existing = comments.find(c =>
+              c.user.type === 'Bot' &&
+              c.body.includes('Skill Security Check')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      - name: No skill changes
+        if: steps.detect.outputs.has_changes == 'false'
+        run: echo "No .github/skills changes in this PR — validation skipped."

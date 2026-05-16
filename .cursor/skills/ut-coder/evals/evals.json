@@ -5,7 +5,9 @@
       "id": 1,
       "prompt": "Generate unit tests for ExcelColumnNameGenerator. Plan: { \"className\": \"ExcelColumnNameGenerator\", \"language\": \"csharp\", \"testFilePath\": \"Metso.HSC.SimUI.Windows.Common.Tests/Utils/ExcelColumnNameGeneratorTests.cs\", \"dependencies\": [], \"constructorNullGuards\": [], \"nonDeterministicCalls\": [], \"methods\": [{\"name\": \"GetExcelColumnName\", \"isAsync\": false, \"returnType\": \"string\", \"parameters\": [{\"name\": \"columnIndex\", \"typeName\": \"int\", \"classification\": \"primitive\"}], \"testCases\": [{\"id\": \"TC-01\", \"technique\": \"EP\", \"category\": \"happyPath\", \"scenario\": \"valid index 1\", \"inputs\": {\"columnIndex\": 1}, \"expectedOutcome\": \"Returns 'A'\", \"boundaryValues\": []}, {\"id\": \"TC-02\", \"technique\": \"BVA\", \"category\": \"edgeCase\", \"scenario\": \"boundary 26\", \"inputs\": {\"columnIndex\": 26}, \"expectedOutcome\": \"Returns 'Z'\", \"boundaryValues\": [\"26\", \"27\"]}, {\"id\": \"TC-03\", \"technique\": \"EP\", \"category\": \"errorCase\", \"scenario\": \"negative index\", \"inputs\": {\"columnIndex\": -1}, \"expectedOutcome\": \"Throws ArgumentOutOfRangeException\", \"boundaryValues\": []}]}] }. Strategy: Mocked: [], Real instances: [], Constructor null-guards: none, Non-deterministic abstractions: none, Test file: Metso.HSC.SimUI.Windows.Common.Tests/Utils/ExcelColumnNameGeneratorTests.cs, Assert style: FluentAssertions (.Should()).",
       "expected_output": "A complete C# test file with file-scoped namespace, [TestFixture], [SetUp] if needed, and test methods covering GetExcelColumnName with FluentAssertions and NUnit [TestCase] for parameterized boundary tests. File location at Metso.HSC.SimUI.Windows.Common.Tests/Utils/. AAA pattern with section comments. No NUnit.Framework using statement (global using in .csproj).",
-      "files": ["Metso.HSC.SimUI.Windows.Common/Utilities/ExcelColumnNameGenerator.cs"]
+      "files": [
+        "Metso.HSC.SimUI.Windows.Common/Utilities/ExcelColumnNameGenerator.cs"
+      ]
     },
     {
       "id": 2,

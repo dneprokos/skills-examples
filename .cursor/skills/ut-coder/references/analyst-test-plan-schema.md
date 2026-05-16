@@ -2,7 +2,7 @@
 
 This file documents the JSON structure the **Analyst role** must produce during test generation. Emit the full JSON to the user before pausing for review (unless `skipReview: true`).
 
-> **Sync:** This file is replicated in `ut-analyst/references/` and `ut-coder/references/`. The canonical source is `.github/skills/ut-analyst/references/analyst-test-plan-schema.md`. Update both (and their `.cursor/skills/` mirrors) together.
+> **Sync:** This file is replicated in `ut-analyst/references/` and `ut-coder/references/`. The canonical source is `ut-analyst/references/analyst-test-plan-schema.md`. Update both (and their `.cursor/skills/` mirrors) together.
 
 ## Schema
 

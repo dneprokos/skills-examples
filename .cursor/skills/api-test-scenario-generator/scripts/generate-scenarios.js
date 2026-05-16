@@ -268,7 +268,6 @@ class APITestScenarioGenerator {
     if (!normalized) return [];
     const segments = normalized.split("/").filter(Boolean);
 
-    const stripLeading = (s) => s.slice(0);
     const candidates = [];
 
     const pushCandidate = (segList) => {
@@ -281,12 +280,12 @@ class APITestScenarioGenerator {
 
     // 2) Remove leading `api`
     if (segments[0] && segments[0].toLowerCase() === "api") {
-      pushCandidate(stripLeading(segments).slice(1));
+      pushCandidate(segments.slice(1));
     }
 
     // 3) Remove leading `v{number}` (common versioning)
     if (segments[0] && /^v\d+$/i.test(segments[0])) {
-      pushCandidate(stripLeading(segments).slice(1));
+      pushCandidate(segments.slice(1));
     }
 
     // 4) Remove leading `api` + `v{number}`
@@ -296,7 +295,7 @@ class APITestScenarioGenerator {
       segments[1] &&
       /^v\d+$/i.test(segments[1])
     ) {
-      pushCandidate(stripLeading(segments).slice(2));
+      pushCandidate(segments.slice(2));
     }
 
     // De-dupe by segment signature.
@@ -315,7 +314,9 @@ class APITestScenarioGenerator {
     return candidates.some(
       (candidate) =>
         candidate.length === apiSegs.length &&
-        candidate.every((seg, idx) => seg === "{}" || apiSegs[idx] === "{}" || seg === apiSegs[idx]),
+        candidate.every(
+          (seg, idx) => seg === "{}" || apiSegs[idx] === "{}" || seg === apiSegs[idx],
+        ),
     );
   }
 
@@ -434,9 +435,15 @@ class APITestScenarioGenerator {
         const resolvedPropSchema = this.resolveSchemaRefs(propSchema, openapiSpec);
         if (!resolvedPropSchema || typeof resolvedPropSchema !== "object") continue;
 
-        if (/status|state/i.test(propName) && Array.isArray(resolvedPropSchema.enum) && resolvedPropSchema.enum.length > 0) {
+        if (
+          /status|state/i.test(propName) &&
+          Array.isArray(resolvedPropSchema.enum) &&
+          resolvedPropSchema.enum.length > 0
+        ) {
           if (derived.inferredStates.length === 0) {
-            derived.inferredStates = resolvedPropSchema.enum.map((v) => String(v));
+            derived.inferredStates = resolvedPropSchema.enum.map((v) =>
+              String(v),
+            );
           }
         }
 
@@ -485,7 +492,6 @@ class APITestScenarioGenerator {
         errObj.properties.code &&
         errObj.properties.message
       ) {
-        // Only mark what we can actually see.
         if (errObj.properties.code) errorFieldCandidates.add("error.code");
         if (errObj.properties.message) errorFieldCandidates.add("error.message");
         if (errObj.properties.requestId) errorFieldCandidates.add("error.requestId");
@@ -548,7 +554,6 @@ class APITestScenarioGenerator {
     context.openapi = { operationFound: true, ...derived, matchedPathKey: found.matchedPathKey };
     context.openapiWarnings = openapiWarnings;
 
-    // Merge inferred fields/states/filters/sortable into user context (only if user didn't provide them).
     if (context.fields.length === 0 && derived.inferredFields.length > 0) {
       context.fields = derived.inferredFields;
     }

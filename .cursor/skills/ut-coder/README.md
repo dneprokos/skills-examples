@@ -17,13 +17,13 @@ Given an Analyst JSON test plan and an Architect strategy summary, this skill:
 
 ## Supported Languages
 
-| Language | Test Framework | Mocking | Assertions |
-|---|---|---|---|
-| **C#** | NUnit 4 / xUnit / MSTest | NSubstitute / Moq | FluentAssertions |
-| **Java** | JUnit 5 | Mockito | AssertJ |
-| **Python** | pytest | unittest.mock | plain assert / assertpy |
-| **TypeScript** | Vitest / Jest | vi.fn() / jest.fn() | built-in + jest-dom |
-| **React (TSX)** | Vitest + Testing Library | vi.fn() | jest-dom |
+| Language        | Test Framework           | Mocking             | Assertions              |
+| --------------- | ------------------------ | ------------------- | ----------------------- |
+| **C#**          | NUnit 4 / xUnit / MSTest | NSubstitute / Moq   | FluentAssertions        |
+| **Java**        | JUnit 5                  | Mockito             | AssertJ                 |
+| **Python**      | pytest                   | unittest.mock       | plain assert / assertpy |
+| **TypeScript**  | Vitest / Jest            | vi.fn() / jest.fn() | built-in + jest-dom     |
+| **React (TSX)** | Vitest + Testing Library | vi.fn()             | jest-dom                |
 
 ## How to Use
 
