@@ -1,0 +1,55 @@
+{
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "🚀 Release Announcement: v2.5 Tomorrow",
+        "emoji": true
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "Hey team, just a heads-up — we're releasing *v2.5* tomorrow morning around *9 AM*."
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*Key Highlights:*"
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "• 📊 Brand new *analytics dashboard*\n• 🐛 Fixed the *login timeout bug* that's been annoying everyone\n• ⚠️ Removed legacy */v1 API endpoints* — migrate to */v2* if you haven't already"
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*Action Required:*\nPlease test staging before *EOD today* and ping <#releases-channel> if you find anything."
+      }
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "Thanks! 🙏"
+        }
+      ]
+    }
+  ]
+}

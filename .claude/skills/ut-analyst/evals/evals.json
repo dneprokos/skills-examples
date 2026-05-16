@@ -1,0 +1,37 @@
+{
+  "skill_name": "ut-analyst",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Analyze ExcelColumnNameGenerator for unit testing",
+      "expected_output": "A JSON test plan with className 'ExcelColumnNameGenerator', language 'csharp', testFilePath in Metso.HSC.SimUI.Windows.Common.Tests/Utils/. The methods array must include GetExcelColumnName with testCases covering: valid indices (BVA technique), boundary values (0, 1, 26, 27, 702, 703), invalid inputs (negative), and edge cases. No nonDeterministicCalls entry expected. No mockable dependencies expected.",
+      "files": [
+        "Metso.HSC.SimUI.Windows.Common/Utilities/ExcelColumnNameGenerator.cs"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Analyze OrderService for unit testing",
+      "expected_output": "A JSON test plan where IOrderRepository is classified as 'interface' with mockStrategy 'mock', Address is classified as 'valueObject' with mockStrategy 'real', and CreateOrderRequest is classified as 'dto' with mockStrategy 'real'. The constructorNullGuards array must include an entry for the IOrderRepository parameter with expectedException 'ArgumentNullException'. No code should be generated — only the JSON plan.",
+      "files": ["Services/OrderService.cs"]
+    },
+    {
+      "id": 3,
+      "prompt": "Analyze ReportGenerator for unit testing",
+      "expected_output": "A JSON test plan with a 'nonDeterministicCalls' array containing an entry for DateTime.UtcNow (or similar) with category 'time', a stabilityWarning field, and a suggestedAbstraction object with interfaceName 'IDateTimeProvider', a methodSignature, and a note. No test code should be generated.",
+      "files": ["Services/ReportGenerator.cs"]
+    },
+    {
+      "id": 4,
+      "prompt": "Analyze unit tests",
+      "expected_output": "A message asking the user to specify the class name they want to analyze. Should NOT produce a JSON plan or any test code.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Analyze UserService for unit testing",
+      "expected_output": "A JSON test plan with language detected as 'java' from the file extension. Dependencies, constructorNullGuards, and testCases must reflect Java conventions (NullPointerException for null guards). No test code should be generated.",
+      "files": ["src/main/java/com/example/services/UserService.java"]
+    }
+  ]
+}

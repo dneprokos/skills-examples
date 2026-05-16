@@ -1,0 +1,60 @@
+{
+  "expectations": [
+    {
+      "text": "Output file slack-message.json is valid JSON",
+      "passed": true,
+      "evidence": "Parsed successfully"
+    },
+    {
+      "text": "Top-level key is 'blocks' and its value is an array",
+      "passed": true,
+      "evidence": "blocks=list"
+    },
+    {
+      "text": "Every block in the array has 'type' equal to 'markdown'",
+      "passed": true,
+      "evidence": "types=['markdown', 'markdown', 'markdown', 'markdown']"
+    },
+    {
+      "text": "Every block in the array has a non-empty 'text' field",
+      "passed": true,
+      "evidence": "texts=[True, True, True, True]"
+    },
+    {
+      "text": "No block contains image markdown syntax '![' anywhere in its text",
+      "passed": true,
+      "evidence": "No image syntax found"
+    },
+    {
+      "text": "The project name 'Orion Data Pipeline' appears in the output",
+      "passed": true,
+      "evidence": "Checked for 'Orion Data Pipeline'"
+    },
+    {
+      "text": "The owner 'Sarah Chen' is mentioned",
+      "passed": true,
+      "evidence": "Checked for 'Sarah Chen'"
+    },
+    {
+      "text": "The IT ticket reference 'IT-4482' is preserved",
+      "passed": true,
+      "evidence": "Checked for 'IT-4482'"
+    },
+    {
+      "text": "The status 'At Risk' is present in the output",
+      "passed": true,
+      "evidence": "Checked for 'At Risk'"
+    },
+    {
+      "text": "No single block's text field exceeds 12000 characters",
+      "passed": true,
+      "evidence": "max chars=264"
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10,
+    "pass_rate": 1.0
+  }
+}

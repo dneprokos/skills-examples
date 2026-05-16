@@ -1,0 +1,20 @@
+{
+  "blocks": [
+    {
+      "type": "markdown",
+      "text": "# Project Phoenix — Release Notes v3.1\n\n## Overview\n\nThis release brings major improvements to the reporting dashboard, a new onboarding flow, and a round of bug fixes.\n\n[Release banner](https://cdn.example.com/images/phoenix-banner.png)"
+    },
+    {
+      "type": "markdown",
+      "text": "## What's New\n\n**Reporting Dashboard**\n\n- Added real-time filtering by date range, team, and status\n- Introduced a new **summary widget** showing KPIs at a glance\n- Export to CSV and PDF now available\n\n**Onboarding Flow**\n\n1. Welcome screen redesigned with guided tooltips\n2. Role-selection step added before workspace setup\n3. Integration setup moved to step 3 (previously step 5)"
+    },
+    {
+      "type": "markdown",
+      "text": "## Bug Fixes\n\n| Issue | Severity | Fixed in |\n|-------|----------|----------|\n| Login loop on SSO timeout | High | v3.1.0 |\n| CSV export missing headers | Medium | v3.1.1 |\n| Dashboard blank on Safari 16 | Medium | v3.1.1 |"
+    },
+    {
+      "type": "markdown",
+      "text": "## Code Example\n\n```javascript\n// New filter API\nconst report = await getReport({\n  startDate: '2026-01-01',\n  endDate: '2026-03-31',\n  team: 'engineering'\n});\n```\n\n## Upgrade Notes\n\n> **Important:** Before upgrading, back up your configuration files. The onboarding flow changes require a database migration — run `npm run migrate` after deploying.\n\n---\n\nFor full changelog see [CHANGELOG.md](https://github.com/example/phoenix/blob/main/CHANGELOG.md)."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "eval_id": 3,
+  "eval_name": "structured-status-update",
+  "prompt": "I need to post a project status update in our #engineering Slack channel. Here's the data from c:\\PersonalProjects\\copilot-skill-examples\\.cursor\\skills\\slack-markdown-generator\\evals\\files\\eval3-structured-data.md\n\nPlease format this as a clean Slack message.",
+  "assertions": [
+    "Output file slack-message.json is valid JSON",
+    "Top-level key is 'blocks' and its value is an array",
+    "Every block in the array has 'type' equal to 'markdown'",
+    "Every block in the array has a non-empty 'text' field",
+    "No block contains image markdown syntax '![' anywhere in its text",
+    "The project name 'Orion Data Pipeline' appears in the output",
+    "The owner 'Sarah Chen' is mentioned",
+    "The IT ticket reference 'IT-4482' is preserved",
+    "The status 'At Risk' is present in the output",
+    "No single block's text field exceeds 12000 characters"
+  ]
+}

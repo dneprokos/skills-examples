@@ -1,0 +1,17 @@
+{
+  "eval_id": 2,
+  "eval_name": "standard-markdown-conversion",
+  "prompt": "Please convert this markdown file into a Slack Block Kit payload. The file is at c:\\PersonalProjects\\copilot-skill-examples\\.cursor\\skills\\slack-markdown-generator\\evals\\files\\eval2-standard-markdown.md\n\nMake sure you handle any Slack-incompatible syntax appropriately.",
+  "assertions": [
+    "Output file slack-message.json is valid JSON",
+    "Top-level key is 'blocks' and its value is an array",
+    "Every block in the array has 'type' equal to 'markdown'",
+    "Every block in the array has a non-empty 'text' field",
+    "No block text contains the pattern '![' (image embed syntax)",
+    "The converted image URL 'cdn.example.com/images/phoenix-banner.png' appears as a plain link or is referenced in the output",
+    "The table with Issue/Severity/Fixed columns is present in at least one block's text",
+    "The JavaScript code block (getReport) is present in at least one block's text",
+    "The blockquote about backing up configuration files is present",
+    "No single block's text field exceeds 12000 characters"
+  ]
+}

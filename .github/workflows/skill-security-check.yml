@@ -1,0 +1,236 @@
+name: Skill Security Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - ".github/skills/**"
+      - ".cursor/skills/**"
+      - ".claude/skills/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    name: Validate changed skills
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed skill folders
+        id: detect
+        run: |
+          BASE=${{ github.event.pull_request.base.sha }}
+          HEAD=${{ github.event.pull_request.head.sha }}
+
+          CHANGED=$(git diff --name-only "$BASE"..."$HEAD")
+          echo "Changed files:"
+          echo "$CHANGED"
+
+          SKILL_DIRS=$(echo "$CHANGED" \
+            | grep -E '^\.github/skills/[^/]+/' \
+            | sed 's|^\(\.github/skills/[^/]*\)/.*|\1|' \
+            | sort -u)
+
+          if [ -z "$SKILL_DIRS" ]; then
+            echo "No skill changes detected — skipping validation."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Skills to validate: $SKILL_DIRS"
+            DIRS_FLAT=$(echo "$SKILL_DIRS" | tr '\n' ' ' | sed 's/ $//')
+            echo "skill_dirs=$DIRS_FLAT" >> "$GITHUB_OUTPUT"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Python
+        if: steps.detect.outputs.has_changes == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        if: steps.detect.outputs.has_changes == 'true'
+        run: pip install pyyaml
+
+      # -----------------------------------------------------------------------
+      # Run validator — always succeeds (informational only)
+      # -----------------------------------------------------------------------
+      - name: Run skill validator
+        if: steps.detect.outputs.has_changes == 'true'
+        id: validate
+        env:
+          PYTHONUTF8: "1"
+        run: |
+          SKILL_DIRS="${{ steps.detect.outputs.skill_dirs }}"
+          OUTPUT=$(python .github/skills/skill-validator/scripts/validate_skill.py $SKILL_DIRS)
+          echo "$OUTPUT"
+
+          # Write full report to file (avoids multiline quoting issues in outputs)
+          echo "$OUTPUT" > /tmp/validation-report.txt
+
+          # Write to job summary
+          echo "$OUTPUT" >> "$GITHUB_STEP_SUMMARY"
+
+          # Parse machine-readable STAT line
+          STAT=$(echo "$OUTPUT" | grep "^STAT:" | sed 's/STAT://')
+          CHECKED=$(echo "$STAT" | grep -oP 'checked=\K[0-9]+' || echo "0")
+          HIGH=$(echo    "$STAT" | grep -oP 'high=\K[0-9]+'    || echo "0")
+          MEDIUM=$(echo  "$STAT" | grep -oP 'medium=\K[0-9]+'  || echo "0")
+          LOW=$(echo     "$STAT" | grep -oP 'low=\K[0-9]+'     || echo "0")
+          FINDINGS=$(echo "$OUTPUT" | grep "^FINDINGS:" | sed 's/FINDINGS://' || echo "")
+
+          echo "checked=$CHECKED"   >> "$GITHUB_OUTPUT"
+          echo "high=$HIGH"         >> "$GITHUB_OUTPUT"
+          echo "medium=$MEDIUM"     >> "$GITHUB_OUTPUT"
+          echo "low=$LOW"           >> "$GITHUB_OUTPUT"
+          echo "findings=$FINDINGS" >> "$GITHUB_OUTPUT"
+
+      # -----------------------------------------------------------------------
+      # PR comment — create or update
+      # -----------------------------------------------------------------------
+      - name: Post results as PR comment
+        if: steps.detect.outputs.has_changes == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('/tmp/validation-report.txt', 'utf8');
+
+            const body = [
+              '## :shield: Skill Security Check',
+              '',
+              report,
+              '',
+              '_Powered by [skill-validator](.github/skills/skill-validator/SKILL.md)_',
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existing = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('Skill Security Check')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      # -----------------------------------------------------------------------
+      # Slack notification → #skills_repo
+      # Requires secret: SLACK_SKILLS_WEBHOOK_URL (incoming webhook for #skills_repo)
+      # -----------------------------------------------------------------------
+      - name: Build Slack payload
+        if: steps.detect.outputs.has_changes == 'true'
+        env:
+          PYTHONUTF8: "1"
+          CHECKED:  ${{ steps.validate.outputs.checked }}
+          HIGH:     ${{ steps.validate.outputs.high }}
+          MEDIUM:   ${{ steps.validate.outputs.medium }}
+          LOW:      ${{ steps.validate.outputs.low }}
+          FINDINGS: ${{ steps.validate.outputs.findings }}
+          PR_NUM:   ${{ github.event.pull_request.number }}
+          PR_URL:   ${{ github.event.pull_request.html_url }}
+          BRANCH:   ${{ github.head_ref }}
+          REPO:     ${{ github.repository }}
+        run: |
+          python - <<'PYEOF'
+          import json, os
+
+          high    = int(os.environ.get("HIGH",    "0"))
+          medium  = int(os.environ.get("MEDIUM",  "0"))
+          low     = int(os.environ.get("LOW",     "0"))
+          checked = int(os.environ.get("CHECKED", "0"))
+          findings = os.environ.get("FINDINGS", "").strip()
+          pr_num  = os.environ.get("PR_NUM", "")
+          pr_url  = os.environ.get("PR_URL", "")
+          branch  = os.environ.get("BRANCH", "")
+          repo    = os.environ.get("REPO", "")
+
+          if high > 0:
+              status_icon, status_text = ":red_circle:", "Issues found"
+          elif medium > 0:
+              status_icon, status_text = ":large_yellow_circle:", "Warnings"
+          else:
+              status_icon, status_text = ":large_green_circle:", "All clear"
+
+          risk_line = (
+              f":red_circle: *{high}* High   "
+              f":large_yellow_circle: *{medium}* Medium   "
+              f":large_green_circle: *{low}* Low"
+          )
+
+          blocks = [
+              {
+                  "type": "header",
+                  "text": {"type": "plain_text", "text": f"Skill Security Check — {status_text}"}
+              },
+              {
+                  "type": "section",
+                  "fields": [
+                      {"type": "mrkdwn", "text": f"*PR:*\n<{pr_url}|#{pr_num}>"},
+                      {"type": "mrkdwn", "text": f"*Repo:*\n{repo}"},
+                      {"type": "mrkdwn", "text": f"*Branch:*\n`{branch}`"},
+                      {"type": "mrkdwn", "text": f"*Skills checked:*\n{checked}"},
+                  ]
+              },
+              {
+                  "type": "section",
+                  "text": {"type": "mrkdwn", "text": f"*Risk summary*\n{risk_line}"}
+              },
+          ]
+
+          if findings:
+              items = "\n".join(f"• {f.strip()}" for f in findings.split("|"))
+              blocks.append({
+                  "type": "section",
+                  "text": {"type": "mrkdwn", "text": f"*Findings*\n{items}"}
+              })
+
+          blocks.append({
+              "type": "actions",
+              "elements": [{
+                  "type": "button",
+                  "text": {"type": "plain_text", "text": "View PR"},
+                  "url": pr_url
+              }]
+          })
+
+          with open("/tmp/slack-payload.json", "w") as f:
+              json.dump({"blocks": blocks}, f)
+
+          print("Slack payload written.")
+          PYEOF
+
+      - name: Notify Slack — skills_repo
+        if: steps.detect.outputs.has_changes == 'true'
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          payload-file-path: /tmp/slack-payload.json
+        env:
+          SLACK_WEBHOOK_URL:  ${{ secrets.SLACK_SKILLS_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: incoming-webhook
+
+      - name: No skill changes
+        if: steps.detect.outputs.has_changes == 'false'
+        run: echo "No .github/skills changes in this PR — validation skipped."
