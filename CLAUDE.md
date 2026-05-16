@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Communication style
+
+Always use caveman mode (full level). Drop articles, filler words, pleasantries, and hedging. Fragments OK. Technical terms exact. Code blocks unchanged. Behave as if `/caveman` was invoked at session start.
+
 ## What this repository is
 
 A collection of reusable GitHub Copilot skills (and Cursor Agent Skills). Each skill is a self-contained folder with a `SKILL.md` at its root. There is no build system, package manager, or test runner — skills are pure Markdown workflows with optional helper scripts.
@@ -12,10 +16,22 @@ A collection of reusable GitHub Copilot skills (and Cursor Agent Skills). Each s
 |---|---|
 | `.github/skills/` | Canonical skill definitions (GitHub Copilot) |
 | `.cursor/skills/` | Manual mirror of the same skills for Cursor Agent Skills |
-| `.agents/skills/` | External skills pulled via `skills-lock.json` |
+| `.claude/skills/` | Manual mirror of the same skills for Claude Code |
+| `.agents/skills/` | External skills pulled via `skills-lock.json` (do not edit manually) |
 | `.github/agents/` | Orchestrator agents that coordinate multiple skills |
 
-**When you add or modify a skill, update both `.github/skills/` and `.cursor/skills/`.** They must stay in sync. Known gaps in the Cursor mirror: `ut-architect` has no `evals/` folder; some `ut-coder` language-example reference files may be missing.
+**When you add or modify a skill, update all three mirrors: `.github/skills/`, `.cursor/skills/`, and `.claude/skills/`.** Use the `skill-copier` skill or run the script directly to sync:
+
+```powershell
+pwsh .github/skills/skill-copier/scripts/Copy-Skills.ps1 -Source .github -Destination .claude
+pwsh .github/skills/skill-copier/scripts/Copy-Skills.ps1 -Source .github -Destination .cursor -Overwrite
+# Use -DryRun to preview without making changes
+```
+
+Known gaps across mirrors:
+- `ut-architect` — `.cursor/skills/ut-architect/` has no `evals/` folder
+- `educational-resource-searcher` — exists only in `.github/skills/` and `.claude/skills/`, not in `.cursor/skills/`
+- Some `ut-coder` language-example reference files may be missing in cursor/claude mirrors
 
 ## SKILL.md format
 
@@ -62,11 +78,13 @@ Shared reference files (`project-patterns.md`, `analyst-test-plan-schema.md`) ar
 
 ## External skills (`skills-lock.json`)
 
-`skills-lock.json` tracks remotely-sourced skills. Local skills (authored in this repo) are not listed there. External skills are stored under `.agents/skills/` after being pulled.
+`skills-lock.json` tracks remotely-sourced skills. Local skills (authored in this repo) are not listed there. External skills are stored under `.agents/skills/` after being pulled. Currently tracked: `documentation-writer` (from `github/awesome-copilot`) and `find-skills` (from `vercel-labs/skills`). The `hello-world` and `dneprokos-medium-article-reviewer` folders under `.agents/skills/` are present locally but not tracked in the lock file.
 
 ## Git workflow skills
 
 The five git skills (`git-branch-creator`, `git-commit-creator`, `git-pr-creator`, `git-push-creator`, `git-workflow-orchestrator`) use PowerShell helper scripts under their `scripts/` folders. Scripts support `-PreviewOnly` / `-DryRun` flags. Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) format.
+
+These scripts are pre-approved in `.claude/settings.json` and run without a permission prompt in Claude Code. Any other `pwsh` invocations outside these paths will require user approval.
 
 ## Secrets and local config
 
@@ -76,9 +94,21 @@ Files that must never be committed:
 
 Use the `.example.json` counterparts as templates.
 
+## Token prediction demo
+
+`token_prediction_example.py` is a standalone script that streams Claude's response token-by-token as a demonstration. It has no relation to skills — it's an independent educational example.
+
+```bash
+pip install anthropic python-dotenv
+cp .env.example .env   # then fill in ANTHROPIC_API_KEY
+python token_prediction_example.py
+```
+
+Type any prompt at the REPL; type `quit` or Ctrl+C to exit.
+
 ## Contributing a new skill
 
 1. Create `.github/skills/{skill-name}/SKILL.md` with correct YAML frontmatter.
-2. Mirror the folder to `.cursor/skills/{skill-name}/`.
+2. Mirror the folder to `.cursor/skills/{skill-name}/` and `.claude/skills/{skill-name}/`.
 3. Keep the skill focused on one workflow domain.
 4. If the skill coordinates other skills, create an agent under `.github/agents/` instead.
