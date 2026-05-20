@@ -16,6 +16,9 @@ jobs:
   validate:
     name: Validate changed skills
     runs-on: ubuntu-latest
+    env:
+      VALIDATION_REPORT: /tmp/validation-report.txt
+      SLACK_PAYLOAD: /tmp/slack-payload.json
 
     steps:
       - name: Checkout
@@ -72,7 +75,7 @@ jobs:
           echo "$OUTPUT"
 
           # Write full report to file (avoids multiline quoting issues in outputs)
-          echo "$OUTPUT" > /tmp/validation-report.txt
+          echo "$OUTPUT" > "$VALIDATION_REPORT"
 
           # Write to job summary
           echo "$OUTPUT" >> "$GITHUB_STEP_SUMMARY"
@@ -100,7 +103,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const report = fs.readFileSync('/tmp/validation-report.txt', 'utf8');
+            const report = fs.readFileSync(process.env.VALIDATION_REPORT, 'utf8');
 
             const body = [
               '## :shield: Skill Security Check',
@@ -144,92 +147,25 @@ jobs:
         if: steps.detect.outputs.has_changes == 'true'
         env:
           PYTHONUTF8: "1"
-          CHECKED:  ${{ steps.validate.outputs.checked }}
-          HIGH:     ${{ steps.validate.outputs.high }}
-          MEDIUM:   ${{ steps.validate.outputs.medium }}
-          LOW:      ${{ steps.validate.outputs.low }}
-          FINDINGS: ${{ steps.validate.outputs.findings }}
-          PR_NUM:   ${{ github.event.pull_request.number }}
-          PR_URL:   ${{ github.event.pull_request.html_url }}
-          BRANCH:   ${{ github.head_ref }}
-          REPO:     ${{ github.repository }}
-        run: |
-          python - <<'PYEOF'
-          import json, os
-
-          high    = int(os.environ.get("HIGH",    "0"))
-          medium  = int(os.environ.get("MEDIUM",  "0"))
-          low     = int(os.environ.get("LOW",     "0"))
-          checked = int(os.environ.get("CHECKED", "0"))
-          findings = os.environ.get("FINDINGS", "").strip()
-          pr_num  = os.environ.get("PR_NUM", "")
-          pr_url  = os.environ.get("PR_URL", "")
-          branch  = os.environ.get("BRANCH", "")
-          repo    = os.environ.get("REPO", "")
-
-          if high > 0:
-              status_icon, status_text = ":red_circle:", "Issues found"
-          elif medium > 0:
-              status_icon, status_text = ":large_yellow_circle:", "Warnings"
-          else:
-              status_icon, status_text = ":large_green_circle:", "All clear"
-
-          risk_line = (
-              f":red_circle: *{high}* High   "
-              f":large_yellow_circle: *{medium}* Medium   "
-              f":large_green_circle: *{low}* Low"
-          )
-
-          blocks = [
-              {
-                  "type": "header",
-                  "text": {"type": "plain_text", "text": f"Skill Security Check — {status_text}"}
-              },
-              {
-                  "type": "section",
-                  "fields": [
-                      {"type": "mrkdwn", "text": f"*PR:*\n<{pr_url}|#{pr_num}>"},
-                      {"type": "mrkdwn", "text": f"*Repo:*\n{repo}"},
-                      {"type": "mrkdwn", "text": f"*Branch:*\n`{branch}`"},
-                      {"type": "mrkdwn", "text": f"*Skills checked:*\n{checked}"},
-                  ]
-              },
-              {
-                  "type": "section",
-                  "text": {"type": "mrkdwn", "text": f"*Risk summary*\n{risk_line}"}
-              },
-          ]
-
-          if findings:
-              items = "\n".join(f"• {f.strip()}" for f in findings.split("|"))
-              blocks.append({
-                  "type": "section",
-                  "text": {"type": "mrkdwn", "text": f"*Findings*\n{items}"}
-              })
-
-          blocks.append({
-              "type": "actions",
-              "elements": [{
-                  "type": "button",
-                  "text": {"type": "plain_text", "text": "View PR"},
-                  "url": pr_url
-              }]
-          })
-
-          with open("/tmp/slack-payload.json", "w") as f:
-              json.dump({"blocks": blocks}, f)
-
-          print("Slack payload written.")
-          PYEOF
+          CHECKED:     ${{ steps.validate.outputs.checked }}
+          HIGH:        ${{ steps.validate.outputs.high }}
+          MEDIUM:      ${{ steps.validate.outputs.medium }}
+          LOW:         ${{ steps.validate.outputs.low }}
+          FINDINGS:    ${{ steps.validate.outputs.findings }}
+          PR_NUM:      ${{ github.event.pull_request.number }}
+          PR_URL:      ${{ github.event.pull_request.html_url }}
+          BRANCH:      ${{ github.head_ref }}
+          REPO:        ${{ github.repository }}
+          OUTPUT_PATH: ${{ env.SLACK_PAYLOAD }}
+        run: python .github/skills/skill-validator/scripts/build_slack_payload.py
 
       - name: Notify Slack — skills_repo
         if: steps.detect.outputs.has_changes == 'true'
-        uses: slackapi/slack-github-action@v2.0.0
+        uses: slackapi/slack-github-action@v3.0.3
         with:
-          payload-file-path: /tmp/slack-payload.json
-        env:
-          SLACK_WEBHOOK_URL:  ${{ secrets.SLACK_SKILLS_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: incoming-webhook
+          webhook:           ${{ secrets.SLACK_SKILLS_WEBHOOK_URL }}
+          webhook-type:      incoming-webhook
+          payload-file-path: ${{ env.SLACK_PAYLOAD }}
 
       - name: No skill changes
         if: steps.detect.outputs.has_changes == 'false'
