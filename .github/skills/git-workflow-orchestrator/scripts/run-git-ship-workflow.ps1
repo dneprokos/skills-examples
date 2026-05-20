@@ -8,7 +8,8 @@ param(
     [switch]$ApproveInstall,
     [switch]$ApproveAuth,
     [switch]$AllowDuplicatePrefix,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$ReportTokens
 )
 
 $ErrorActionPreference = 'Stop'
@@ -323,7 +324,10 @@ See .github/skills/git-pr-creator/README.md
 }
 
 $accumulatedOutput = New-Object System.Collections.Generic.List[string]
+$phaseTimings = [ordered]@{}
+$workflowStart = [datetime]::UtcNow
 
+$t0 = [datetime]::UtcNow
 if (-not $SkipBranch) {
     $branchArgs = @(
         '-NoProfile',
@@ -345,7 +349,9 @@ else {
     Write-Host 'SKIPPED (-SkipBranch)'
     Write-Host 'Phase 1: SUCCESS'
 }
+$phaseTimings['1 Branch'] = ([datetime]::UtcNow - $t0).TotalSeconds
 
+$t0 = [datetime]::UtcNow
 $commitArgs = @(
     '-NoProfile',
     '-File', $commitScript,
@@ -360,7 +366,9 @@ $commitOut = Invoke-PhaseScript -PhaseNumber 2 -Title 'Commit' -PwshArguments $c
 if ($null -ne $commitOut) {
     [void]$accumulatedOutput.Add($commitOut)
 }
+$phaseTimings['2 Commit'] = ([datetime]::UtcNow - $t0).TotalSeconds
 
+$t0 = [datetime]::UtcNow
 $pushArgs = @('-NoProfile', '-File', $pushScript)
 if ($DryRun) {
     $pushArgs += '-DryRun'
@@ -370,6 +378,7 @@ $pushOut = Invoke-PhaseScript -PhaseNumber 3 -Title 'Push' -PwshArguments $pushA
 if ($null -ne $pushOut) {
     [void]$accumulatedOutput.Add($pushOut)
 }
+$phaseTimings['3 Push'] = ([datetime]::UtcNow - $t0).TotalSeconds
 
 $prArgs = @(
     '-NoProfile',
@@ -389,10 +398,12 @@ if ($ApproveAuth) {
     $prArgs += '-ApproveAuth'
 }
 
+$t0 = [datetime]::UtcNow
 $prOut = Invoke-PhaseScript -PhaseNumber 4 -Title 'Pull request' -PwshArguments $prArgs
 if ($null -ne $prOut) {
     [void]$accumulatedOutput.Add($prOut)
 }
+$phaseTimings['4 PR'] = ([datetime]::UtcNow - $t0).TotalSeconds
 
 $combined = ($accumulatedOutput | Where-Object { $_ } | ForEach-Object { "$_" }) -join "`n"
 $prUrl = Get-PrUrlFromOutput -Text $combined
@@ -409,4 +420,15 @@ if (-not [string]::IsNullOrWhiteSpace($prUrl)) {
 }
 else {
     Write-Host 'PR_URL: (not detected in output; check Phase 4 log above)'
+}
+
+if ($ReportTokens) {
+    $totalSec = ([datetime]::UtcNow - $workflowStart).TotalSeconds
+    Write-Host ''
+    Write-Host '=== Phase timing ==='
+    foreach ($kv in $phaseTimings.GetEnumerator()) {
+        Write-Host ("  Phase {0,-15}: {1,5:F1}s" -f $kv.Key, $kv.Value)
+    }
+    Write-Host ("  {0,-21}: {1,5:F1}s" -f 'Total', $totalSec)
+    Write-Host 'Note: token count unavailable in script-driven mode (Claude session log not accessible from subprocess).'
 }

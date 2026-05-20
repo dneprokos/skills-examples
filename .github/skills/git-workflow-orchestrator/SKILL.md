@@ -66,7 +66,8 @@ pwsh -NoProfile -File ./.github/skills/git-workflow-orchestrator/scripts/run-git
    [-PrBase <branch>] `
   [-ApproveInstall] [-ApproveAuth] `
   [-AllowDuplicatePrefix] `
-  [-DryRun]
+  [-DryRun] `
+  [-ReportTokens]
 ```
 
 - **`-CommitMessage`** is required (stages all changes and commits in one step).
@@ -95,6 +96,59 @@ PR: <paste URL verbatim from gh output>
 ```
 
 Use **FAILED** and stop populating later phases if a step errors. Include a short **Notes** reason on failure.
+
+## Token usage reporting (optional)
+
+Activate by saying "with token reporting", "show tokens used", or "report_tokens: true".
+
+### Agent-driven mode
+
+**Before Phase 1** — snapshot current session token count from the Claude Code session log:
+
+```bash
+# macOS / Linux
+find "$HOME/.claude/projects" -name "*.jsonl" -type f 2>/dev/null \
+  | xargs ls -t 2>/dev/null | head -1
+
+# Windows (PowerShell)
+Get-ChildItem "$env:USERPROFILE\.claude\projects" -Recurse -Filter "*.jsonl" `
+  -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending `
+  | Select-Object -First 1 -ExpandProperty FullName
+```
+
+Read the last line of the JSONL file and extract the cumulative token total. Save as `TOKENS_BEFORE`.
+
+**After Phase 4** — read again, save as `TOKENS_AFTER`. Report the delta as tokens consumed during this workflow run.
+
+If the session log is not readable, skip token reporting and note it in the summary.
+
+### Script-driven mode (`-ReportTokens`)
+
+The PowerShell subprocess has no access to Claude's session log. Instead it records **per-phase wall-clock timing** and appends it to the workflow summary:
+
+```
+=== Phase timing ===
+  Phase 1 Branch    :  1.2s
+  Phase 2 Commit    :  0.8s
+  Phase 3 Push      :  3.1s
+  Phase 4 PR        :  4.7s
+  Total             :  9.8s
+Note: token count unavailable in script-driven mode.
+```
+
+### Phase summary with token reporting (agent-driven)
+
+```text
+| Phase | Name   | Status  | Notes |
+| ----- | ------ | ------- | ----- |
+| 1     | Branch | SUCCESS | ...   |
+| 2     | Commit | SUCCESS | ...   |
+| 3     | Push   | SUCCESS | ...   |
+| 4     | PR     | SUCCESS | ...   |
+
+PR: <url>
+Tokens used during orchestration: ~12,400 (input: 9,800 / output: 2,600)
+```
 
 ## Hard rules
 
