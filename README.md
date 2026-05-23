@@ -11,30 +11,30 @@ Reusable agent skills you can copy into `.github/skills/`, `.cursor/skills/`, or
 
 Each skill targets a specific workflow and is activated by natural-language prompts:
 
-| Skill | Purpose | Contents |
-|---|---|---|
-| [`api-test-scenario-generator`](.github/skills/api-test-scenario-generator/) | Generates structured REST API test scenarios with boundary and validation coverage | `SKILL.md`, templates, config, script |
-| [`bug-report-formatter`](.github/skills/bug-report-formatter/) | Converts messy bug descriptions, stack traces, or error logs into a structured Jira-ready report; optionally creates a Jira ticket via Atlassian MCP | `SKILL.md` |
-| [`dneprokos-medium-article-reviewer`](.github/skills/dneprokos-medium-article-reviewer/) | Section-by-section critique of a Medium article with actionable suggestions based on the author's established style | `SKILL.md`, references |
-| [`educational-resource-searcher`](.github/skills/educational-resource-searcher/) | Finds top-rated tutorials, courses, and videos on any topic across YouTube, Udemy, Coursera, Pluralsight, and more | `SKILL.md` |
-| [`git-branch-creator`](.github/skills/git-branch-creator/) | Creates a new Git branch after verifying that `main` is ready and up to date | `SKILL.md`, README, script |
-| [`git-commit-creator`](.github/skills/git-commit-creator/) | Creates a Conventional Commits message from staged changes | `SKILL.md`, README, references, script |
-| [`git-pr-creator`](.github/skills/git-pr-creator/) | Creates a pull request from the current branch with ticket-style PR titles | `SKILL.md`, README, references, script |
-| [`git-push-creator`](.github/skills/git-push-creator/) | Pushes the current local branch to `origin` | `SKILL.md`, README, script |
-| [`git-workflow-orchestrator`](.github/skills/git-workflow-orchestrator/) | Phased branch → commit → push → PR with per-phase status and PR URL | `SKILL.md`, script |
-| [`jira-mcp-assistant`](.github/skills/jira-mcp-assistant/) | Jira Cloud JQL and backlog-style lists via Atlassian MCP (read-first; extend for writes) | `SKILL.md`, references |
-| [`meeting-notes-summarizer`](.github/skills/meeting-notes-summarizer/) | Turns transcripts or messy notes into a Teams/email-ready structured recap | `SKILL.md`, references |
-| [`readme-polisher`](.github/skills/readme-polisher/) | Drafts or upgrades a repository `README.md` using real project evidence | `SKILL.md`, references, assets, script |
-| [`requirements-reviewer`](.github/skills/requirements-reviewer/) | Reviews requirements against 8 quality characteristics (clear, complete, consistent…) and produces a graded report | `SKILL.md`, references |
-| [`rest-api-design`](.github/skills/rest-api-design/) | Designs and reviews REST APIs: paths, HTTP semantics, pagination, versioning, errors, OpenAPI | `SKILL.md`, README, references |
-| [`skill-copier`](.github/skills/skill-copier/) | Copies or syncs skills between `.claude/skills/`, `.cursor/skills/`, and `.github/skills/` | `SKILL.md`, script |
-| [`skill-creator`](.github/skills/skill-creator/) | Creates, tests, and iteratively improves agent skills with eval runs and a results viewer | `SKILL.md`, agents, scripts, eval-viewer |
-| [`slack-markdown-generator`](.github/skills/slack-markdown-generator/) | Converts any content into a Slack Block Kit JSON payload, handling the 12k-char limit and Slack-specific quirks | `SKILL.md` |
-| [`token-usage-reporting`](.github/skills/token-usage-reporting/) | Produces day/week/month token usage reports in table format | `SKILL.md`, config, template, script |
-| [`ut-analyst`](.github/skills/ut-analyst/) | **Phase 1** — classifies dependencies, detects non-determinism, enumerates test cases using EP/BVA/DT/ST, produces JSON test plan | `SKILL.md`, README, references, evals |
-| [`ut-architect`](.github/skills/ut-architect/) | **Phase 2** — assigns mock/real strategy per dependency, resolves assertion style, specifies non-determinism abstractions | `SKILL.md`, README, references, evals |
-| [`ut-coder`](.github/skills/ut-coder/) | **Phase 3** — generates the complete, compilable test file: AAA pattern, parameterized tests, mocks, null-guards, setup/teardown | `SKILL.md`, README, references, evals |
-| [`windows-secretmanagement-setup`](.github/skills/windows-secretmanagement-setup/) | Installs and configures Windows SecretManagement + SecretStore for PowerShell credential storage (bootstraps `GitHubToken` for PR skills) | `SKILL.md` |
+| Skill                                                                                    | Purpose                                                                                                                                              | Contents                                 |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| [`api-test-scenario-generator`](.github/skills/api-test-scenario-generator/)             | Generates structured REST API test scenarios with boundary and validation coverage                                                                   | `SKILL.md`, templates, config, script    |
+| [`bug-report-formatter`](.github/skills/bug-report-formatter/)                           | Converts messy bug descriptions, stack traces, or error logs into a structured Jira-ready report; optionally creates a Jira ticket via Atlassian MCP | `SKILL.md`                               |
+| [`dneprokos-medium-article-reviewer`](.github/skills/dneprokos-medium-article-reviewer/) | Section-by-section critique of a Medium article with actionable suggestions based on the author's established style                                  | `SKILL.md`, references                   |
+| [`educational-resource-searcher`](.github/skills/educational-resource-searcher/)         | Finds top-rated tutorials, courses, and videos on any topic across YouTube, Udemy, Coursera, Pluralsight, and more                                   | `SKILL.md`                               |
+| [`git-branch-creator`](.github/skills/git-branch-creator/)                               | Creates a new Git branch after verifying that `main` is ready and up to date                                                                         | `SKILL.md`, README, script               |
+| [`git-commit-creator`](.github/skills/git-commit-creator/)                               | Creates a Conventional Commits message from staged changes                                                                                           | `SKILL.md`, README, references, script   |
+| [`git-pr-creator`](.github/skills/git-pr-creator/)                                       | Creates a pull request from the current branch with ticket-style PR titles                                                                           | `SKILL.md`, README, references, script   |
+| [`git-push-creator`](.github/skills/git-push-creator/)                                   | Pushes the current local branch to `origin`                                                                                                          | `SKILL.md`, README, script               |
+| [`git-workflow-orchestrator`](.github/skills/git-workflow-orchestrator/)                 | Phased branch → commit → push → PR with per-phase status and PR URL                                                                                  | `SKILL.md`, script                       |
+| [`jira-mcp-assistant`](.github/skills/jira-mcp-assistant/)                               | Jira Cloud JQL and backlog-style lists via Atlassian MCP (read-first; extend for writes)                                                             | `SKILL.md`, references                   |
+| [`meeting-notes-summarizer`](.github/skills/meeting-notes-summarizer/)                   | Turns transcripts or messy notes into a Teams/email-ready structured recap                                                                           | `SKILL.md`, references                   |
+| [`readme-polisher`](.github/skills/readme-polisher/)                                     | Drafts or upgrades a repository `README.md` using real project evidence                                                                              | `SKILL.md`, references, assets, script   |
+| [`requirements-reviewer`](.github/skills/requirements-reviewer/)                         | Reviews requirements against 8 quality characteristics (clear, complete, consistent…) and produces a graded report                                   | `SKILL.md`, references                   |
+| [`rest-api-design`](.github/skills/rest-api-design/)                                     | Designs and reviews REST APIs: paths, HTTP semantics, pagination, versioning, errors, OpenAPI                                                        | `SKILL.md`, README, references           |
+| [`skill-copier`](.github/skills/skill-copier/)                                           | Copies or syncs skills between `.claude/skills/`, `.cursor/skills/`, and `.github/skills/`                                                           | `SKILL.md`, script                       |
+| [`skill-creator`](.github/skills/skill-creator/)                                         | Creates, tests, and iteratively improves agent skills with eval runs and a results viewer                                                            | `SKILL.md`, agents, scripts, eval-viewer |
+| [`slack-markdown-generator`](.github/skills/slack-markdown-generator/)                   | Converts any content into a Slack Block Kit JSON payload, handling the 12k-char limit and Slack-specific quirks                                      | `SKILL.md`                               |
+| [`token-usage-reporting`](.github/skills/token-usage-reporting/)                         | Produces day/week/month token usage reports in table format                                                                                          | `SKILL.md`, config, template, script     |
+| [`ut-analyst`](.github/skills/ut-analyst/)                                               | **Phase 1** — classifies dependencies, detects non-determinism, enumerates test cases using EP/BVA/DT/ST, produces JSON test plan                    | `SKILL.md`, README, references, evals    |
+| [`ut-architect`](.github/skills/ut-architect/)                                           | **Phase 2** — assigns mock/real strategy per dependency, resolves assertion style, specifies non-determinism abstractions                            | `SKILL.md`, README, references, evals    |
+| [`ut-coder`](.github/skills/ut-coder/)                                                   | **Phase 3** — generates the complete, compilable test file: AAA pattern, parameterized tests, mocks, null-guards, setup/teardown                     | `SKILL.md`, README, references, evals    |
+| [`windows-secretmanagement-setup`](.github/skills/windows-secretmanagement-setup/)       | Installs and configures Windows SecretManagement + SecretStore for PowerShell credential storage (bootstraps `GitHubToken` for PR skills)            | `SKILL.md`                               |
 
 ## Unit Test Generator Agent
 
@@ -111,11 +111,11 @@ Format this status update for Slack.
 
 This repository maintains the same skill set under three locations:
 
-| Location | Tool |
-|---|---|
+| Location          | Tool                              |
+| ----------------- | --------------------------------- |
 | `.github/skills/` | GitHub Copilot (canonical source) |
-| `.cursor/skills/` | Cursor Agent Skills |
-| `.claude/skills/` | Claude Code |
+| `.cursor/skills/` | Cursor Agent Skills               |
+| `.claude/skills/` | Claude Code                       |
 
 **Keep all three in sync when you add or modify a skill.** Use the [`skill-copier`](.github/skills/skill-copier/) skill to copy skills between folders automatically:
 
@@ -127,6 +127,7 @@ Copy skills from .github to .cursor, overwrite existing
 The `skill-copier` skill runs `.github/skills/skill-copier/scripts/Copy-Skills.ps1` under the hood and reports how many were copied, skipped, or failed.
 
 Known gaps in the Cursor and Claude mirrors:
+
 - **`ut-architect`** — `.cursor/skills/ut-architect/` has no `evals/` folder.
 - **Project-patterns templates** — `project-patterns-java-example.md`, `project-patterns-python-example.md`, and `project-patterns-typescript-example.md` exist under `.github/skills/ut-coder/references/` but may not be present in all mirrors. Copy them if needed.
 
@@ -251,6 +252,8 @@ Contributions are welcome. If you add a new skill:
 2. Mirror the folder to `.cursor/skills/{skill-name}/` and `.claude/skills/{skill-name}/`.
 3. Keep the skill focused on one workflow domain.
 4. If the skill coordinates other skills, create an agent under `.github/agents/` instead.
+
+test
 
 ## License
 
