@@ -5,7 +5,8 @@
       "Bash(pwsh * .github/skills/git-commit-creator/scripts/create-commit.ps1*)",
       "Bash(pwsh * .github/skills/git-pr-creator/scripts/create-pr.ps1*)",
       "Bash(pwsh * .github/skills/git-push-creator/scripts/push-branch.ps1*)",
-      "Bash(pwsh * .github/skills/git-workflow-orchestrator/scripts/run-git-ship-workflow.ps1*)"
+      "Bash(pwsh * .github/skills/git-workflow-orchestrator/scripts/run-git-ship-workflow.ps1*)",
+      "mcp__atlassian__*"
     ],
     "deny": [
       "Read(.env)"

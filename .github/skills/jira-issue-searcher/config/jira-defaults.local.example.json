@@ -1,0 +1,9 @@
+{
+  "_comment": "Copy this file to jira-defaults.local.json and fill in your values. The .local.json file is gitignored and will be loaded automatically by the jira-issue-searcher skill.",
+  "site": "your-site.atlassian.net",
+  "projectKey": "SCRUM",
+  "boardName": "SCRUM board",
+  "defaultFields": ["summary", "status", "priority", "assignee", "sprint"],
+  "defaultOrderBy": "Rank ASC",
+  "maxResultsPerPage": 25
+}

@@ -78,7 +78,7 @@ pwsh -NoProfile -File ./.github/skills/git-workflow-orchestrator/scripts/run-git
 
 Phase banners and subprocess output use the host stream so they stay visible when the script is invoked from tools that assign function output. On success, the script also emits **`PR_URL: <url>`** on the success stream for redirection or piping.
 
-Interpret the script's **phase lines** and final **`PR_URL:`** line for the user.
+Interpret the script’s **phase lines** and final **`PR_URL:`** line for the user.
 
 ## Phase summary template (agent-driven)
 
