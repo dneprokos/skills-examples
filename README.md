@@ -255,3 +255,5 @@ Contributions are welcome. If you add a new skill:
 ## License
 
 Released under the MIT License. See [`LICENSE`](LICENSE) for details.
+------------
+Something was added for testing. 
