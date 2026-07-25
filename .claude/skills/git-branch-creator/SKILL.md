@@ -24,6 +24,7 @@ Do **not** use it for:
 
 - merging or rebasing branches
 - deleting branches
+- renaming branches
 - opening pull requests
 
 ## Workflow
