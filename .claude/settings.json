@@ -1,4 +1,5 @@
 {
+  "enabledMcpjsonServers": ["atlassian"],
   "permissions": {
     "allow": [
       "Bash(pwsh * .github/skills/git-branch-creator/scripts/create-branch.ps1*)",
@@ -11,5 +12,25 @@
     "deny": [
       "Read(.env)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -Command \"$d = $input | ConvertFrom-Json; $p = $d.tool_input.file_path; if ($p -match '\\.github[\\\\/]skills[\\\\/]') { Write-Output 'MIRROR REMINDER: sync changes to .claude/skills/ and .cursor/skills/' }\""
+          },
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -Command \"$d = $input | ConvertFrom-Json; $p = $d.tool_input.file_path; if ($p -match '\\.py$') { if (Get-Command ruff -ErrorAction SilentlyContinue) { ruff check $p } else { Write-Output 'ruff not found - skipping lint (install: pip install ruff)' } }\""
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "playwright@claude-plugins-official": true
   }
 }
